@@ -14,14 +14,21 @@ async function addUserIfMissing(u) {  // eslint-disable-line no-unused-vars
 /**
  * finds or creates a record
  */
-async function getRecord(type, id, createdAt){
+async function getRecord(type, id, createdAt, fields = {}){
   let r = (await db.find(type, [id])).payload.records[0];
 
   if (!r) {
-    r = (await db.create(type, [{
-      id,
-      createdAt: Date.parse(createdAt),
-    }])).payload.records[0];
+    console(`creating ${type} ${id}}`);
+
+    r = (await db.create(type, [
+      Object.assign(
+        {
+          id,
+          createdAt: Date.parse(createdAt),
+        },
+        fields,
+      ),
+    ])).payload.records[0];
 
     if (type === 'issue') {
       issueCache.push(r);
@@ -32,33 +39,50 @@ async function getRecord(type, id, createdAt){
 }
 
 async function updateIssue(i, repoID) {
-  const issue = await getRecord('issue', i.id, i.created_at);
   const updated = Date.parse(i.updated_at);
+
+  const fields = {
+    body: i.body,
+    isPullRequest: Boolean(i.pull_request),
+    number: i.number,
+    repo: repoID,
+    state: i.state,
+    title: i.title,
+    user: i.user.id,
+    updatedAt: updated,
+  };
+
+  const issue = await getRecord('issue', i.id, i.created_at, fields);
 
   if (issue.updatedAt !== updated) {
     log(`updating issue ${i.id}`);
 
     await db.update('issue', [{
       id: i.id,
-      replace: {
-        body: i.body,
-        isPullRequest: Boolean(i.pull_request),
-        number: i.number,
-        repo: repoID,
-        state: i.state,
-        title: i.title,
-        user: i.user.id,
-        updatedAt: updated,
-      },
+      replace: fields,
     }]);
   }
 }
 
 async function updateIssueComment(c, issues) {
-  const comment = await getRecord('issueComment', c.id, c.created_at);
+  let comment = (await db.find('issueComment', [c.id])).payload.records[0];
   const updated = Date.parse(c.updated_at);
 
-  if (comment.updatedAt !== updated || !comment.issue) {
+  if (comment) { // update
+
+    if (comment.updatedAt !== updated) {
+      log(`updating issueComment ${c.id}`);
+      await db.update('issueComment', [{
+        id: c.id,
+        replace: {
+          body: c.body,
+          updatedAt: updated,
+        },
+      }]);
+    }
+  }
+  else { // create
+
     // find the issue id by querying the issue number
     const issueNumber = Number(c.issue_url.match(/\d+$/)[0]);
     const issue = issues.find(i => i.number === issueNumber);
@@ -72,33 +96,35 @@ async function updateIssueComment(c, issues) {
       console.error(`couldn't find issue for ${JSON.stringify(c)}`);
     }
 
-    log(`updating issue comment ${c.id}`);
-
-    await db.update('issueComment', [{
-      id: c.id,
-      replace: {
+    console(`creating issueComment ${c.id}}`);
+    comment = (await db.create('issueComment', [
+      {
+        id: c.id,
+        createdAt: Date.parse(Date.parse(c.created_at)),
         body: c.body,
         issue: issueID,
         user: c.user.id,
         updatedAt: updated,
       },
-    }]);
+    ])).payload.records[0];
   }
 }
 
 async function updateRepo(r) {
-  const repo = await getRecord('repo', r.id, r.created_at);
   const updated = Date.parse(r.updated_at);
+  const fields = {
+    name: r.name,
+    updatedAt: updated,
+  };
+
+  const repo = await getRecord('repo', r.id, r.created_at, fields);
 
   if (repo.updatedAt !== updated) {
     log(`updating repo ${r.name}`);
 
     await db.update('repo', [{
       id: r.id,
-      replace: {
-        name: r.name,
-        updatedAt: updated,
-      },
+      replace: fields,
     }]);
   }
 }
@@ -113,14 +139,27 @@ async function updateRepoLastSuccessRun(r, lastSuccessRun) {
 }
 
 async function updateReviewComment(c, issues) {
-  const comment = await getRecord('reviewComment', c.id, c.created_at);
+  let comment = (await db.find('reviewComment', [c.id])).payload.records[0];
   const updated = Date.parse(c.updated_at);
 
-  if (comment.updatedAt !== updated) {
+  if (comment) { // update
+
+    if (comment.updatedAt !== updated) {
+      log(`updating reviewComment ${c.id}`);
+      await db.update('reviewComment', [{
+        id: c.id,
+        replace: {
+          body: c.body,
+          updatedAt: updated,
+        },
+      }]);
+    }
+  }
+  else { // create
+
     // find the issue id by querying the issue number
     const issueNumber = Number(c.pull_request_url.match(/\d+$/)[0]);
     const issue = issues.find(i => i.number === issueNumber);
-
     let issueID;
 
     if (issue) {
@@ -130,18 +169,17 @@ async function updateReviewComment(c, issues) {
       // it's possible to have orphaned comments 😿
       console.error(`couldn't find issue for ${JSON.stringify(c)}`);
     }
-
-    log(`updating review comment ${c.id}`);
-
-    await db.update('reviewComment', [{
-      id: c.id,
-      replace: {
+    console(`creating reviewComment ${c.id}}`);
+    comment = (await db.create('reviewComment', [
+      {
+        id: c.id,
+        createdAt: Date.parse(Date.parse(c.created_at)),
         body: c.body,
         issue: issueID,
         user: c.user.id,
         updatedAt: updated,
       },
-    }]);
+    ])).payload.records[0];
   }
 }
 
@@ -155,7 +193,7 @@ async function updateState(fields, logMessage = 'updating state'){
 }
 
 async function updateUser(u) {
-  const user = await getRecord('user', u.id, u.created_at);
+  const user = await getRecord('user', u.id, u.created_at, { login: u.login });
 
   if (!user.name) {
     log(`updating user ${u.id}`);
