@@ -40,6 +40,11 @@ export default async function backItUp() {
     await fetchRepos(threshold);
 
     for (const r of (await db.find('repo')).payload.records) {
+
+      if (options.excludeRepos?.includes(r.name)) {
+        continue;
+      }
+
       if (!options.forceUpdate && r.lastSuccessRun + threshold > now) {
         log(`${r.name} repo fetched within the last ${options.daysThreshold} day(s), skipping...`);
       }
@@ -48,7 +53,6 @@ export default async function backItUp() {
         await issueCacheIsLoaded;
         log(`processing repo '${r.name}'...`);
         await fetchIssues(r);
-        log('getting issues from db');
         const issues = issueCache.get().filter(i => i.repo === r.id);
         await fetchIssueComments(r, issues);
         await fetchReviewComments(r, issues);

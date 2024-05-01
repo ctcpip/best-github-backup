@@ -5,6 +5,7 @@ import pkgJSON from './pkgJSON.mjs';
 const args = parseArgs({
   options: {
     days:     { type: 'string',   short: 'd' },  // daysThreshold
+    exclude:  { type: 'string',   short: 'e' },  // excludeRepos
     force:    { type: 'boolean',  short: 'f' },  // forceUpdate
     help:     { type: 'boolean',  short: 'h' },
     org:      { type: 'string',   short: 'o' },
