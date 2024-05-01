@@ -1,0 +1,34 @@
+{
+  "name": "best-github-backup",
+  "version": "0.1.0",
+  "description": "the best GitHub backup program (trust me bro)",
+  "main": "index.mjs",
+  "bin": {
+    "best-github-backup": "index.mjs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ctcpip/best-github-backup.git"
+  },
+  "author": "Chris de Almeida",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/ctcpip/best-github-backup/issues"
+  },
+  "homepage": "https://github.com/ctcpip/best-github-backup",
+  "devDependencies": {
+    "@stylistic/eslint-plugin-js": "^1.8.0",
+    "eslint": "^9.1.1"
+  },
+  "dependencies": {
+    "fortune": "^5.5.19",
+    "fortune-fs": "^1.2.0",
+    "octokit": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
