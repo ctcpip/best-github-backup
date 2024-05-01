@@ -160,7 +160,7 @@ async function updateUser(u) {
   if (!user.name) {
     log(`updating user ${u.id}`);
     const userData = (await api.request('GET /users/{username}', { username: u.login })).data;
-    const name = userData.name ? name : 'null';
+    const name = userData.name || 'null';
 
     await db.update('user', [{
       id: u.id,
