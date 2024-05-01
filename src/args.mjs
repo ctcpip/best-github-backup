@@ -26,7 +26,6 @@ function validateArgs() {
       allGood = false;
       break;
     case args.values.version:{
-    // import attributes when?
       console.log(`${pkgJSON.name} v${pkgJSON.version} - ${pkgJSON.homepage}`);
       allGood = false;
       break;}
