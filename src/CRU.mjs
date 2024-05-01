@@ -18,7 +18,7 @@ async function getRecord(type, id, createdAt, fields = {}){
   let r = (await db.find(type, [id])).payload.records[0];
 
   if (!r) {
-    console(`creating ${type} ${id}}`);
+    log(`creating ${type} ${id}}`);
 
     r = (await db.create(type, [
       Object.assign(
@@ -96,7 +96,7 @@ async function updateIssueComment(c, issues) {
       console.error(`couldn't find issue for ${JSON.stringify(c)}`);
     }
 
-    console(`creating issueComment ${c.id}}`);
+    log(`creating issueComment ${c.id}}`);
     comment = (await db.create('issueComment', [
       {
         id: c.id,
@@ -169,7 +169,8 @@ async function updateReviewComment(c, issues) {
       // it's possible to have orphaned comments 😿
       console.error(`couldn't find issue for ${JSON.stringify(c)}`);
     }
-    console(`creating reviewComment ${c.id}}`);
+
+    log(`creating reviewComment ${c.id}}`);
     comment = (await db.create('reviewComment', [
       {
         id: c.id,
