@@ -1,4 +1,4 @@
-import { log } from './util.mjs';
+import { debug, log } from './util.mjs';
 import {
   getRecord,
   updateIssue,
@@ -34,14 +34,14 @@ async function fetchIssueComments(repo, repoIssues){
     `GET /repos/{owner}/{repo}/issues/comments`,
     params,
   )) {
-    log('data received');
+    debug('data received');
     for (const c of response.data) {
       promises.push(updateIssueComment(c, repoIssues));
     }
   }
 
   await Promise.all(promises);
-  log('updating repo.lastSuccessIssueComments');
+  debug('updating repo.lastSuccessIssueComments');
 
   await db.update('repo', [{
     id: repo.id,
@@ -69,14 +69,14 @@ async function fetchIssues(repo){
     `GET /repos/{owner}/{repo}/issues`,
     params,
   )) {
-    log('data received');
+    debug('data received');
     for (const i of response.data) {
       promises.push(updateIssue(i, repo.id));
     }
   }
 
   await Promise.all(promises);
-  log('updating repo.lastSuccessIssues');
+  debug('updating repo.lastSuccessIssues');
 
   await db.update('repo', [{
     id: repo.id,
@@ -104,7 +104,7 @@ async function fetchMembers(threshold){
         per_page: 100,
       },
     )) {
-      log('data received');
+      debug('data received');
       for (const m of response.data) {
         promises.push(updateUser(m));
       }
@@ -136,7 +136,7 @@ async function fetchRepos(threshold){
         per_page: 100,
       },
     )) {
-      log('data received');
+      debug('data received');
       for (const r of response.data) {
         promises.push(updateRepo(r));
       }
@@ -170,7 +170,7 @@ async function fetchReviewComments(repo, repoIssues){
     `GET /repos/{owner}/{repo}/pulls/comments`,
     params,
   )) {
-    log('data received');
+    debug('data received');
     for (const c of response.data) {
       promises.push(updateReviewComment(c, repoIssues));
     }
@@ -178,7 +178,7 @@ async function fetchReviewComments(repo, repoIssues){
 
   await Promise.all(promises);
 
-  log('updating repo.lastSuccessReviewComments');
+  debug('updating repo.lastSuccessReviewComments');
   await db.update('repo', [{
     id: repo.id,
     replace: { lastSuccessReviewComments: now },

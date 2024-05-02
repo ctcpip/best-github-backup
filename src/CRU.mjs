@@ -1,5 +1,5 @@
 import db from './db.mjs';
-import { log } from './util.mjs';
+import { debug } from './util.mjs';
 import api from './api.mjs';
 import issueCache from './issue-cache.mjs';
 
@@ -18,7 +18,7 @@ async function getRecord(type, id, createdAt, fields = {}){
   let r = (await db.find(type, [id])).payload.records[0];
 
   if (!r) {
-    log(`creating ${type} ${id}`);
+    debug(`creating ${type} ${id}`);
 
     r = (await db.create(type, [
       Object.assign(
@@ -55,7 +55,7 @@ async function updateIssue(i, repoID) {
   const issue = await getRecord('issue', i.id, i.created_at, fields);
 
   if (issue.updatedAt !== updated) {
-    log(`updating issue ${i.id}`);
+    debug(`updating issue ${i.id}`);
 
     await db.update('issue', [{
       id: i.id,
@@ -71,7 +71,7 @@ async function updateIssueComment(c, issues) {
   if (comment) { // update
 
     if (comment.updatedAt !== updated) {
-      log(`updating issueComment ${c.id}`);
+      debug(`updating issueComment ${c.id}`);
       await db.update('issueComment', [{
         id: c.id,
         replace: {
@@ -96,7 +96,7 @@ async function updateIssueComment(c, issues) {
       console.error(`couldn't find issue for ${JSON.stringify(c)}`);
     }
 
-    log(`creating issueComment ${c.id}`);
+    debug(`creating issueComment ${c.id}`);
     comment = (await db.create('issueComment', [
       {
         id: c.id,
@@ -120,7 +120,7 @@ async function updateRepo(r) {
   const repo = await getRecord('repo', r.id, r.created_at, fields);
 
   if (repo.updatedAt !== updated) {
-    log(`updating repo ${r.name}`);
+    debug(`updating repo ${r.name}`);
 
     await db.update('repo', [{
       id: r.id,
@@ -130,7 +130,7 @@ async function updateRepo(r) {
 }
 
 async function updateRepoLastSuccessRun(r, lastSuccessRun) {
-  log(`updating repo.lastSuccessRun`);
+  debug(`updating repo.lastSuccessRun`);
 
   await db.update('repo', [{
     id: r.id,
@@ -145,7 +145,7 @@ async function updateReviewComment(c, issues) {
   if (comment) { // update
 
     if (comment.updatedAt !== updated) {
-      log(`updating reviewComment ${c.id}`);
+      debug(`updating reviewComment ${c.id}`);
       await db.update('reviewComment', [{
         id: c.id,
         replace: {
@@ -170,7 +170,7 @@ async function updateReviewComment(c, issues) {
       console.error(`couldn't find issue for ${JSON.stringify(c)}`);
     }
 
-    log(`creating reviewComment ${c.id}`);
+    debug(`creating reviewComment ${c.id}`);
     comment = (await db.create('reviewComment', [
       {
         id: c.id,
@@ -185,7 +185,7 @@ async function updateReviewComment(c, issues) {
 }
 
 async function updateState(fields, logMessage = 'updating state'){
-  log(logMessage);
+  debug(logMessage);
 
   await db.update('state', [{
     id: 1,
@@ -197,7 +197,7 @@ async function updateUser(u) {
   const user = await getRecord('user', u.id, u.created_at, { login: u.login });
 
   if (!user.name) {
-    log(`updating user ${u.id}`);
+    debug(`updating user ${u.id}`);
     const userData = (await api.request('GET /users/{username}', { username: u.login })).data;
     const name = userData.name || 'null';
 

@@ -1,6 +1,6 @@
 import db from './db.mjs';
 import args, { validateArgs } from './args.mjs';
-import { log } from './util.mjs';
+import { debug, log } from './util.mjs';
 import { updateRepoLastSuccessRun, updateState } from './CRU.mjs';
 import state from './state.mjs';
 import {
@@ -29,7 +29,7 @@ export default async function backItUp() {
 
   log(`${pkgJSON.name} v${pkgJSON.version}`);
   log(`options: ${JSON.stringify(options)}`);
-  log(`state: ${JSON.stringify(state)}`);
+  debug(`state: ${JSON.stringify(state)}`);
   log(`backing up org '${org}'...`);
   await updateState({ lastRun: now }, 'updating lastRun');
 
@@ -49,7 +49,7 @@ export default async function backItUp() {
         log(`${r.name} repo fetched within the last ${options.daysThreshold} day(s), skipping...`);
       }
       else {
-        log('loading issue cache');
+        debug('loading issue cache');
         await issueCacheIsLoaded;
         log(`processing repo '${r.name}'...`);
         await fetchIssues(r);
