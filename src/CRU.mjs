@@ -30,6 +30,8 @@ async function getRecord(type, id, createdAt, fields = {}){
       ),
     ])).payload.records[0];
 
+    stats.create(type);
+
     if (type === 'issue') {
       issueCache.push(r);
     }
@@ -39,6 +41,7 @@ async function getRecord(type, id, createdAt, fields = {}){
 }
 
 async function updateIssue(i, repoID) {
+  const type = 'issue';
   const updated = Date.parse(i.updated_at);
 
   const fields = {
@@ -52,33 +55,37 @@ async function updateIssue(i, repoID) {
     updatedAt: updated,
   };
 
-  const issue = await getRecord('issue', i.id, i.created_at, fields);
+  const issue = await getRecord(type, i.id, i.created_at, fields);
 
   if (issue.updatedAt !== updated) {
-    debug(`updating issue ${i.id}`);
+    debug(`updating ${type} ${i.id}`);
 
-    await db.update('issue', [{
+    await db.update(type, [{
       id: i.id,
       replace: fields,
     }]);
+
+    stats.update(type);
   }
 }
 
 async function updateIssueComment(c, issues) {
-  let comment = (await db.find('issueComment', [c.id])).payload.records[0];
+  const type = 'issueComment';
+  let comment = (await db.find(type, [c.id])).payload.records[0];
   const updated = Date.parse(c.updated_at);
 
   if (comment) { // update
 
     if (comment.updatedAt !== updated) {
-      debug(`updating issueComment ${c.id}`);
-      await db.update('issueComment', [{
+      debug(`updating ${type} ${c.id}`);
+      await db.update(type, [{
         id: c.id,
         replace: {
           body: c.body,
           updatedAt: updated,
         },
       }]);
+      stats.update(type);
     }
   }
   else { // create
@@ -96,8 +103,8 @@ async function updateIssueComment(c, issues) {
       console.error(`couldn't find issue for ${JSON.stringify(c)}`);
     }
 
-    debug(`creating issueComment ${c.id}`);
-    comment = (await db.create('issueComment', [
+    debug(`creating ${type} ${c.id}`);
+    comment = (await db.create(type, [
       {
         id: c.id,
         createdAt: Date.parse(Date.parse(c.created_at)),
@@ -107,43 +114,48 @@ async function updateIssueComment(c, issues) {
         updatedAt: updated,
       },
     ])).payload.records[0];
+    stats.create(type);
   }
 }
 
 async function updateRepo(r) {
+  const type = 'repo';
   const updated = Date.parse(r.updated_at);
   const fields = {
     name: r.name,
     updatedAt: updated,
   };
 
-  const repo = await getRecord('repo', r.id, r.created_at, fields);
+  const repo = await getRecord(type, r.id, r.created_at, fields);
 
   if (repo.updatedAt !== updated) {
     debug(`updating repo ${r.name}`);
 
-    await db.update('repo', [{
+    await db.update(type, [{
       id: r.id,
       replace: fields,
     }]);
+    stats.update(type);
   }
 }
 
 async function updateReviewComment(c, issues) {
-  let comment = (await db.find('reviewComment', [c.id])).payload.records[0];
+  const type = 'reviewComment';
+  let comment = (await db.find(type, [c.id])).payload.records[0];
   const updated = Date.parse(c.updated_at);
 
   if (comment) { // update
 
     if (comment.updatedAt !== updated) {
-      debug(`updating reviewComment ${c.id}`);
-      await db.update('reviewComment', [{
+      debug(`updating ${type} ${c.id}`);
+      await db.update(type, [{
         id: c.id,
         replace: {
           body: c.body,
           updatedAt: updated,
         },
       }]);
+      stats.update(type);
     }
   }
   else { // create
@@ -161,8 +173,8 @@ async function updateReviewComment(c, issues) {
       console.error(`couldn't find issue for ${JSON.stringify(c)}`);
     }
 
-    debug(`creating reviewComment ${c.id}`);
-    comment = (await db.create('reviewComment', [
+    debug(`creating ${type} ${c.id}`);
+    comment = (await db.create(type, [
       {
         id: c.id,
         createdAt: Date.parse(Date.parse(c.created_at)),
@@ -172,6 +184,7 @@ async function updateReviewComment(c, issues) {
         updatedAt: updated,
       },
     ])).payload.records[0];
+    stats.create(type);
   }
 }
 
@@ -185,22 +198,60 @@ async function updateState(fields, logMessage = 'updating state'){
 }
 
 async function updateUser(u) {
-  const user = await getRecord('user', u.id, u.created_at, { login: u.login });
+  const type = 'user';
+  const user = await getRecord(type, u.id, u.created_at, { login: u.login });
 
   if (!user.name) {
-    debug(`updating user ${u.id}`);
+    debug(`updating ${type} ${u.id}`);
     const userData = (await api.request('GET /users/{username}', { username: u.login })).data;
     const name = userData.name || 'null';
 
-    await db.update('user', [{
+    await db.update(type, [{
       id: u.id,
       replace: { name },
     }]);
+    stats.update(type);
   }
 }
 
+const stats = (function stats() {
+
+  const _stats = {};
+
+  function create(type){
+    _stats[`${type}Created`] = (_stats[`${type}Created`] || 0) + 1;
+  }
+
+  function update(type){
+    _stats[`${type}Updated`] = (_stats[`${type}Updated`] || 0) + 1;
+  }
+
+  function print() {
+    const sb = [];
+    for (const [k, v] of Object.entries(_stats)) {
+      const keyParts = k.split(/(?=[A-Z])/);
+      const operation = keyParts[keyParts.length - 1];
+      const type = keyParts
+        .slice(0, keyParts.length - 1)
+        .map(str => str.toLowerCase())
+        .join(' ');
+
+      sb.push(`${type}s ${operation.toLowerCase()}: ${v}`);
+    }
+    return sb.join('\n');
+  }
+
+  return {
+    create,
+    print,
+    update,
+  };
+
+})();
+
 export {
   getRecord,
+  stats,
   updateIssue,
   updateIssueComment,
   updateRepo,

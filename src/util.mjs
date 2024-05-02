@@ -3,7 +3,9 @@ import util from 'node:util';
 const debugLog = util.debuglog('BEST-GITHUB-BACKUP');
 
 function logWithTimestamp(txt, debug) {
-  const logMessage = `${(new Date()).toISOString().replace('T', ' ').replace(/\.\d+Z/, '')} - ${txt}`;
+
+  const timeStamp = (new Date()).toISOString().replace('T', ' ').replace(/\.\d+Z/, '');
+  const logMessage = txt.split('\n').map(t => `${timeStamp} - ${t}`).join('\n');
 
   if (debug){
     debugLog(logMessage);

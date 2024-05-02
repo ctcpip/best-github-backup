@@ -1,7 +1,7 @@
 import db from './db.mjs';
 import args, { validateArgs } from './args.mjs';
 import { debug, log } from './util.mjs';
-import { updateState } from './CRU.mjs';
+import { stats, updateState } from './CRU.mjs';
 import state from './state.mjs';
 import {
   fetchIssueComments,
@@ -30,8 +30,17 @@ export default async function backItUp() {
   log(`${pkgJSON.name} v${pkgJSON.version}`);
   debug(`options: ${JSON.stringify(options)}`);
   debug(`state: ${JSON.stringify(state)}`);
+
+  if (state.org && state.org !== org) {
+    throw new Error(`specified org '${org}' does not match DB org '${state.org}'. can't continue`);
+  }
+
   log(`backing up org '${org}'...`);
-  await updateState({ lastRun: now }, 'updating lastRun');
+
+  await updateState({
+    lastRun: now,
+    org,
+  }, 'updating lastRun');
 
   const issueCacheIsLoaded = db.find('issue').then(i => issueCache.load(i.payload.records));
 
@@ -77,6 +86,9 @@ export default async function backItUp() {
   catch (error) {
     console.error('Error: ', error.message);
     throw error;
+  }
+  finally {
+    log(`\nbackup summary:\n\n${ stats.print() }\n`);
   }
 
   await updateState({ lastSuccessRun: now }, 'updating lastSuccessRun');

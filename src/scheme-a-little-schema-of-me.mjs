@@ -41,6 +41,7 @@ export default {
     lastSuccessMembers: Number,
     lastSuccessRepos: Number,
     lastSuccessRun: Number,
+    org: String,
     repo: Object,  // per-repo state, indexed by repoID
     //  {
     //    repoID (Number): {
@@ -52,6 +53,7 @@ export default {
     //  }
   },
   user: {
+    isDeleted: Boolean,
     login: String,
     name: String,
   },
