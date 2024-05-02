@@ -1,5 +1,7 @@
 # Best GitHub Backup
 
+[![test](https://github.com/ctcpip/best-github-backup/actions/workflows/test.yml/badge.svg)](https://github.com/ctcpip/best-github-backup/actions/workflows/test.yml)
+
 this is the best GitHub backup program. it does not suck, and here is why:
 
 - robust and resilient implementation
@@ -24,7 +26,7 @@ npm i -g best-github-backup
 
 ## Use
 
-you'll need a [GitHub API token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) with at least `public_repo` and `read:org` scopes 🔭
+you'll need a [GitHub API token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) with at least `repo` and `read:org` scopes 🔭
 
 ```sh
 best-github-backup -o <org> -t <token>
