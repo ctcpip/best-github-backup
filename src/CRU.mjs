@@ -48,7 +48,7 @@ async function updateIssue(i, repoID) {
     repo: repoID,
     state: i.state,
     title: i.title,
-    user: i.user.id,
+    user: i.user?.id || null,
     updatedAt: updated,
   };
 
@@ -103,7 +103,7 @@ async function updateIssueComment(c, issues) {
         createdAt: Date.parse(Date.parse(c.created_at)),
         body: c.body,
         issue: issueID || null,
-        user: c.user.id,
+        user: c.user?.id || null,
         updatedAt: updated,
       },
     ])).payload.records[0];
@@ -168,7 +168,7 @@ async function updateReviewComment(c, issues) {
         createdAt: Date.parse(Date.parse(c.created_at)),
         body: c.body,
         issue: issueID || null,
-        user: c.user.id,
+        user: c.user?.id || null,
         updatedAt: updated,
       },
     ])).payload.records[0];

@@ -1,3 +1,5 @@
 import { getRecord } from './CRU.mjs';
 
-export default await getRecord('state', 1);
+const oneStateToRuleThemAll = await getRecord('state', 1);
+
+export default oneStateToRuleThemAll;

@@ -1,6 +1,5 @@
 import { debug, log } from './util.mjs';
 import {
-  getRecord,
   updateIssue,
   updateIssueComment,
   updateRepo,
@@ -9,12 +8,11 @@ import {
   updateUser,
 } from './CRU.mjs';
 import api from './api.mjs';
-import db from './db.mjs';
 import args from './args.mjs';
 import options from './options.mjs';
+import state from './state.mjs';
 
 const { org } = args;
-const state = await getRecord('state', 1);
 
 async function fetchIssueComments(repo, repoIssues, repoState){
   log('fetching issue comments...');
@@ -42,7 +40,7 @@ async function fetchIssueComments(repo, repoIssues, repoState){
 
   await Promise.all(promises);
   repoState.lastSuccessIssueComments = now;
-  await updateState( state.repo );
+  await updateState({ repo: state.repo });
 }
 
 async function fetchIssues(repo, repoState){
@@ -72,7 +70,7 @@ async function fetchIssues(repo, repoState){
 
   await Promise.all(promises);
   repoState.lastSuccessIssues = now;
-  await updateState( state.repo );
+  await updateState({ repo: state.repo });
 }
 
 async function fetchMembers(threshold){
@@ -168,7 +166,7 @@ async function fetchReviewComments(repo, repoIssues, repoState){
 
   await Promise.all(promises);
   repoState.lastSuccessReviewComments = now;
-  await updateState( state.repo );
+  await updateState({ repo: state.repo });
 }
 
 function since(timestamp) {
