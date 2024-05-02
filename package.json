@@ -1,6 +1,6 @@
 {
   "name": "best-github-backup",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "the best GitHub backup program (trust me bro)",
   "main": "index.mjs",
   "bin": {

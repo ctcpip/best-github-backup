@@ -28,7 +28,7 @@ export default async function backItUp() {
   const now = Date.now();
 
   log(`${pkgJSON.name} v${pkgJSON.version}`);
-  log(`options: ${JSON.stringify(options)}`);
+  debug(`options: ${JSON.stringify(options)}`);
   debug(`state: ${JSON.stringify(state)}`);
   log(`backing up org '${org}'...`);
   await updateState({ lastRun: now }, 'updating lastRun');
