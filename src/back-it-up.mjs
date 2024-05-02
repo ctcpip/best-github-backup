@@ -1,7 +1,7 @@
 import db from './db.mjs';
 import args, { validateArgs } from './args.mjs';
 import { debug, log } from './util.mjs';
-import { updateRepoLastSuccessRun, updateState } from './CRU.mjs';
+import { updateState } from './CRU.mjs';
 import state from './state.mjs';
 import {
   fetchIssueComments,
@@ -45,19 +45,32 @@ export default async function backItUp() {
         continue;
       }
 
-      if (!options.forceUpdate && r.lastSuccessRun + threshold > now) {
+      let repoState;
+
+      if (state.repo) {
+        repoState = state.repo[r.id];
+        if (!repoState) {
+          repoState = state.repo[r.id] = {};
+        }
+      }
+      else {
+        state.repo = { [r.id]: {} };
+        repoState = state.repo[r.id];
+      }
+
+      if (!options.forceUpdate && repoState.lastSuccessRun + threshold > now) {
         log(`${r.name} repo fetched within the last ${options.daysThreshold} day(s), skipping...`);
       }
       else {
         debug('loading issue cache');
         await issueCacheIsLoaded;
         log(`processing repo '${r.name}'...`);
-        await fetchIssues(r);
+        await fetchIssues(r, repoState);
         const issues = issueCache.get().filter(i => i.repo === r.id);
-        await fetchIssueComments(r, issues);
-        await fetchReviewComments(r, issues);
-        await updateRepoLastSuccessRun(r, Date.now());
-        await updateState({ checkpoint: r.id }, 'updating checkpoint');
+        await fetchIssueComments(r, issues, repoState);
+        await fetchReviewComments(r, issues, repoState);
+        repoState.lastSuccessRun = Date.now();
+        await updateState({ repo: state.repo });
       }
     }
   }

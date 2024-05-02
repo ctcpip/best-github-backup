@@ -16,7 +16,7 @@ import options from './options.mjs';
 const { org } = args;
 const state = await getRecord('state', 1);
 
-async function fetchIssueComments(repo, repoIssues){
+async function fetchIssueComments(repo, repoIssues, repoState){
   log('fetching issue comments...');
   const now = Date.now();
   const promises = [];
@@ -27,7 +27,7 @@ async function fetchIssueComments(repo, repoIssues){
   };
 
   if (!options.forceUpdate) {
-    params.since = since(repo.lastSuccessIssueComments);
+    params.since = since(repoState.lastSuccessIssueComments);
   }
 
   for await (const response of api.paginate.iterator(
@@ -41,16 +41,11 @@ async function fetchIssueComments(repo, repoIssues){
   }
 
   await Promise.all(promises);
-  debug('updating repo.lastSuccessIssueComments');
-
-  await db.update('repo', [{
-    id: repo.id,
-    replace: { lastSuccessIssueComments: now },
-  }]);
-
+  repoState.lastSuccessIssueComments = now;
+  await updateState( state.repo );
 }
 
-async function fetchIssues(repo){
+async function fetchIssues(repo, repoState){
   log('fetching issues...');
   const now = Date.now();
   const promises = [];
@@ -62,7 +57,7 @@ async function fetchIssues(repo){
   };
 
   if (!options.forceUpdate){
-    params.since = since(repo.lastSuccessIssues);
+    params.since = since(repoState.lastSuccessIssues);
   }
 
   for await (const response of api.paginate.iterator(
@@ -76,13 +71,8 @@ async function fetchIssues(repo){
   }
 
   await Promise.all(promises);
-  debug('updating repo.lastSuccessIssues');
-
-  await db.update('repo', [{
-    id: repo.id,
-    replace: { lastSuccessIssues: now },
-  }]);
-
+  repoState.lastSuccessIssues = now;
+  await updateState( state.repo );
 }
 
 async function fetchMembers(threshold){
@@ -150,7 +140,7 @@ async function fetchRepos(threshold){
 
 }
 
-async function fetchReviewComments(repo, repoIssues){
+async function fetchReviewComments(repo, repoIssues, repoState){
 
   log('fetching review comments...');
 
@@ -163,7 +153,7 @@ async function fetchReviewComments(repo, repoIssues){
   };
 
   if (!options.forceUpdate) {
-    params.since = since(repo.lastSuccessReviewComments);
+    params.since = since(repoState.lastSuccessReviewComments);
   }
 
   for await (const response of api.paginate.iterator(
@@ -177,13 +167,8 @@ async function fetchReviewComments(repo, repoIssues){
   }
 
   await Promise.all(promises);
-
-  debug('updating repo.lastSuccessReviewComments');
-  await db.update('repo', [{
-    id: repo.id,
-    replace: { lastSuccessReviewComments: now },
-  }]);
-
+  repoState.lastSuccessReviewComments = now;
+  await updateState( state.repo );
 }
 
 function since(timestamp) {

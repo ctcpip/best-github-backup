@@ -33,10 +33,6 @@ export default {
   },
   repo: {
     createdAt: Number,
-    lastSuccessIssueComments: Number,
-    lastSuccessIssues: Number,
-    lastSuccessReviewComments: Number,
-    lastSuccessRun: Number,
     name: String,
     updatedAt: Number,
   },
@@ -45,6 +41,15 @@ export default {
     lastSuccessMembers: Number,
     lastSuccessRepos: Number,
     lastSuccessRun: Number,
+    repo: Object,  // per-repo state, indexed by repoID
+    //  {
+    //    repoID (Number): {
+    //      lastSuccessIssueComments: Number,
+    //      lastSuccessIssues: Number,
+    //      lastSuccessReviewComments: Number,
+    //      lastSuccessRun: Number,
+    //    },
+    //  }
   },
   user: {
     login: String,

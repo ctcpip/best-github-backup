@@ -129,15 +129,6 @@ async function updateRepo(r) {
   }
 }
 
-async function updateRepoLastSuccessRun(r, lastSuccessRun) {
-  debug(`updating repo.lastSuccessRun`);
-
-  await db.update('repo', [{
-    id: r.id,
-    replace: { lastSuccessRun },
-  }]);
-}
-
 async function updateReviewComment(c, issues) {
   let comment = (await db.find('reviewComment', [c.id])).payload.records[0];
   const updated = Date.parse(c.updated_at);
@@ -213,7 +204,6 @@ export {
   updateIssue,
   updateIssueComment,
   updateRepo,
-  updateRepoLastSuccessRun,
   updateReviewComment,
   updateState,
   updateUser,
