@@ -1,0 +1,19 @@
+name: 'test'
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      ORG: ${{ secrets.ORG }}
+      TOKEN: ${{ secrets.TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ljharb/actions/node/install@main
+        name: 'nvm install lts/*'
+      - run: |
+          ./test/test.sh
