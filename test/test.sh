@@ -1,34 +1,43 @@
 #!/bin/sh
 
-success=true
-node ./index.mjs
-exitCode=$?
-success=true
+ctr=0
 
-if [ $exitCode -ne 3 ] ;
-then
-  success=false
-  echo "command should fail if no args provided"
-fi
-
-node ./index.mjs -o "$ORG" -t "$TOKEN"
-exitCode=$?
-
-if [ $exitCode -eq 0 ] ;
-then
-  node ./index.mjs -o "$ORG" -t "$TOKEN"
+test() {
+  ctr=$((ctr+1))
+  printf "\nrunning test %s" $ctr
+  node ./index.mjs "$1" "$2" "$3" "$4" "$5"
   exitCode=$?
+}
 
-  if [ $exitCode -ne 0 ] ;
+check() {
+  if [ $exitCode -ne "$1" ] ;
   then
     success=false
-    echo "second run failed"
+    echo "$2"
   fi
+}
 
-else
-  success=false
-  echo "first run failed"
+success=true
+
+test
+check 3 "command should fail if no args provided"
+
+test -o "$ORG" -t "$TOKEN"
+check 0 "test $ctr failed"
+
+test -o "$ORG" -t "$TOKEN"
+check 0 "test $ctr failed"
+
+if [ "$ORG" != "$ORG_WITH_REPO" ] ;
+then
+  rm -rf ./data
 fi
+
+test -o "$ORG_WITH_REPO" -t "$TOKEN" -g
+check 0 "test $ctr failed"
+
+test -o "$ORG_WITH_REPO" -t "$TOKEN" -g
+check 0 "test $ctr failed"
 
 if [ "$success" != true ] ; then
   exit 42

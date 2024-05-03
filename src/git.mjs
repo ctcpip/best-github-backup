@@ -4,7 +4,7 @@ import { __dirname } from './util.mjs';
 import shelly from './shelly.mjs';
 import { debug } from './util.mjs';
 import { stats } from './CRU.mjs';
-import { log } from 'node:console';
+import { log } from './util.mjs';
 
 const gitFolder = path.resolve(__dirname, './git');
 const cmdOptions = { timeout: 60 * 5 };  // 5 minute timeout

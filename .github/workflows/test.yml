@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ORG: ${{ secrets.ORG }}
+      ORG_WITH_REPO: ${{ secrets.ORG_WITH_REPO }}
       TOKEN: ${{ secrets.TOKEN }}
     steps:
       - uses: actions/checkout@v4

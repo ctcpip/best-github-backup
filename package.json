@@ -7,7 +7,7 @@
     "best-github-backup": "index.mjs"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint {*.mjs,src/**/*.mjs}",
     "test": "npm run lint && ./test/test.sh"
   },
   "repository": {
