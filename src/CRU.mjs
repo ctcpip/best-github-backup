@@ -122,13 +122,14 @@ async function updateRepo(r) {
   const type = 'repo';
   const updated = Date.parse(r.updated_at);
   const fields = {
+    cloneURL: r.clone_url,
     name: r.name,
     updatedAt: updated,
   };
 
   const repo = await getRecord(type, r.id, r.created_at, fields);
 
-  if (repo.updatedAt !== updated) {
+  if (repo.updatedAt !== updated || !repo.cloneURL) {
     debug(`updating repo ${r.name}`);
 
     await db.update(type, [{
@@ -218,6 +219,10 @@ const stats = (function stats() {
 
   const _stats = {};
 
+  function clone() {
+    _stats['gitRepoCloned'] = (_stats['gitRepoCloned'] || 0) + 1;
+  }
+
   function create(type){
     _stats[`${type}Created`] = (_stats[`${type}Created`] || 0) + 1;
   }
@@ -242,6 +247,7 @@ const stats = (function stats() {
   }
 
   return {
+    clone,
     create,
     print,
     update,

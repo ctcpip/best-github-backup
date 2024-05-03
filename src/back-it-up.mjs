@@ -13,6 +13,7 @@ import {
 import options from './options.mjs';
 import issueCache from './issue-cache.mjs';
 import pkgJSON from './pkgJSON.mjs';
+import { backupGitRepo } from './git.mjs';
 
 export default async function backItUp() {
 
@@ -78,6 +79,7 @@ export default async function backItUp() {
         const issues = issueCache.get().filter(i => i.repo === r.id);
         await fetchIssueComments(r, issues, repoState);
         await fetchReviewComments(r, issues, repoState);
+        await backupGitRepo(r);
         repoState.lastSuccessRun = Date.now();
         await updateState({ repo: state.repo });
       }

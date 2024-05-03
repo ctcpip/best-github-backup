@@ -32,6 +32,7 @@ export default {
     user: Number, // FK
   },
   repo: {
+    cloneURL: String,
     createdAt: Number,
     name: String,
     updatedAt: Number,
