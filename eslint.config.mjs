@@ -10,6 +10,7 @@ export default [
       globals: {
         console: true,
         process: true,
+        URL: true,
       },
     },
     files: ['**/*.mjs'],
