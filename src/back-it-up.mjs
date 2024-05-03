@@ -30,7 +30,7 @@ export default async function backItUp() {
 
   log(`${pkgJSON.name} v${pkgJSON.version}`);
   debug(`options: ${JSON.stringify(options)}`);
-  debug(`state: ${JSON.stringify(state)}`);
+  debug(`state: ${JSON.stringify(state, null, 2)}`);
 
   if (state.org && state.org !== org) {
     throw new Error(`specified org '${org}' does not match DB org '${state.org}'. can't continue`);
@@ -79,7 +79,7 @@ export default async function backItUp() {
         const issues = issueCache.get().filter(i => i.repo === r.id);
         await fetchIssueComments(r, issues, repoState);
         await fetchReviewComments(r, issues, repoState);
-        await backupGitRepo(r);
+        if (options.includeGitRepo) { await backupGitRepo(r); }
         repoState.lastSuccessRun = Date.now();
         await updateState({ repo: state.repo });
       }

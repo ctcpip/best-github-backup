@@ -5,6 +5,8 @@ import path from 'node:path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.resolve(path.dirname(__filename), '../');
 
+// enable debug logging with env var:
+// NODE_DEBUG=BEST-GITHUB-BACKUP
 const debugLog = util.debuglog('BEST-GITHUB-BACKUP');
 
 function logWithTimestamp(txt, debug) {

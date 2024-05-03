@@ -7,6 +7,7 @@ const args = parseArgs({
     days:     { type: 'string',   short: 'd' },  // daysThreshold
     exclude:  { type: 'string',   short: 'e' },  // excludeRepos
     force:    { type: 'boolean',  short: 'f' },  // forceUpdate
+    git:      { type: 'boolean',  short: 'g' },  // includeGitRepo
     help:     { type: 'boolean',  short: 'h' },
     org:      { type: 'string',   short: 'o' },
     token:    { type: 'string',   short: 't' },
