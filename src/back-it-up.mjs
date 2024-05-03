@@ -49,7 +49,10 @@ export default async function backItUp() {
     await fetchMembers(threshold);
     await fetchRepos(threshold);
 
-    for (const r of (await db.find('repo')).payload.records) {
+    const repos = (await db.find('repo')).payload.records;
+
+    for (let i = 0; i < repos.length; i++) {
+      const r = repos[i];
 
       if (options.excludeRepos?.includes(r.name)) {
         continue;
@@ -74,7 +77,7 @@ export default async function backItUp() {
       else {
         debug('loading issue cache');
         await issueCacheIsLoaded;
-        log(`processing repo '${r.name}'...`);
+        log(`processing repo (${i + 1}/${repos.length}) - '${r.name}'...`);
         await fetchIssues(r, repoState);
         const issues = issueCache.get().filter(i => i.repo === r.id);
         await fetchIssueComments(r, issues, repoState);
