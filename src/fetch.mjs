@@ -15,7 +15,7 @@ import state from './state.mjs';
 const { org } = args;
 
 async function fetchIssueComments(repo, repoIssues, repoState){
-  log('fetching issue comments...');
+  debug('fetching issue comments...');
   const now = Date.now();
   const promises = [];
   const params = {
@@ -44,7 +44,7 @@ async function fetchIssueComments(repo, repoIssues, repoState){
 }
 
 async function fetchIssues(repo, repoState){
-  log('fetching issues...');
+  debug('fetching issues...');
   const now = Date.now();
   const promises = [];
   const params = {
@@ -81,7 +81,7 @@ async function fetchMembers(threshold){
     log(`members fetched within the last ${options.daysThreshold} day(s), skipping...`);
   }
   else {
-    log('fetching members...');
+    debug('fetching members...');
     const now = Date.now();
     const promises = [];
 
@@ -112,9 +112,7 @@ async function fetchRepos(threshold){
     log(`repos fetched within the last ${options.daysThreshold} day(s), skipping...`);
   }
   else {
-
-    log('fetching repos...');
-
+    debug('fetching repos...');
     const promises = [];
 
     for await (const response of api.paginate.iterator(
@@ -139,8 +137,7 @@ async function fetchRepos(threshold){
 }
 
 async function fetchReviewComments(repo, repoIssues, repoState){
-
-  log('fetching review comments...');
+  debug('fetching review comments...');
 
   const now = Date.now();
   const promises = [];

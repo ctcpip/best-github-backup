@@ -15,7 +15,7 @@ async function backupGitRepo(repo) {
   const clone = !fs.existsSync(gitRepoPath);
   let cmdResult;
 
-  log('fetching git repo...');
+  debug('fetching git repo...');
 
   const cloneURL = new URL(repo.cloneURL);
   const url = `https://${args.token}@${cloneURL.host}${cloneURL.pathname}`;

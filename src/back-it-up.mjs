@@ -43,12 +43,14 @@ export default async function backItUp() {
     org,
   }, 'updating lastRun');
 
+  debug('loading issue cache');
   const issueCacheIsLoaded = db.find('issue').then(i => issueCache.load(i.payload.records));
 
-  try {
-    await fetchMembers(threshold);
-    await fetchRepos(threshold);
+  const promises = [];
 
+  try {
+    promises.push(fetchMembers(threshold));
+    await fetchRepos(threshold);
     const repos = (await db.find('repo')).payload.records;
 
     for (let i = 0; i < repos.length; i++) {
@@ -58,35 +60,18 @@ export default async function backItUp() {
         continue;
       }
 
-      let repoState;
-
-      if (state.repo) {
-        repoState = state.repo[r.id];
-        if (!repoState) {
-          repoState = state.repo[r.id] = {};
-        }
-      }
-      else {
-        state.repo = { [r.id]: {} };
-        repoState = state.repo[r.id];
-      }
+      const repoState = getRepoState(r.id);
+      await issueCacheIsLoaded;
 
       if (!options.forceUpdate && repoState.lastSuccessRun + threshold > now) {
         log(`${r.name} repo fetched within the last ${options.daysThreshold} day(s), skipping...`);
       }
       else {
-        debug('loading issue cache');
-        await issueCacheIsLoaded;
-        log(`processing repo (${i + 1}/${repos.length}) - '${r.name}'...`);
-        await fetchIssues(r, repoState);
-        const issues = issueCache.get().filter(i => i.repo === r.id);
-        await fetchIssueComments(r, issues, repoState);
-        await fetchReviewComments(r, issues, repoState);
-        if (options.includeGitRepo) { await backupGitRepo(r); }
-        repoState.lastSuccessRun = Date.now();
-        await updateState({ repo: state.repo });
+        promises.push(processRepo(r, repoState, i, repos.length));
       }
     }
+
+    await Promise.all(promises);
   }
   catch (error) {
     console.error('Error: ', error.message);
@@ -99,3 +84,36 @@ export default async function backItUp() {
   await updateState({ lastSuccessRun: now }, 'updating lastSuccessRun');
   log('...done!\n');
 };
+
+async function processRepo(repo, repoState, repoIndex, totalRepos) {
+  const promises = [];
+  if (options.includeGitRepo) { promises.push(backupGitRepo(repo)); }
+  debug(`started processing repo (${repoIndex + 1}/${totalRepos}) - '${repo.name}'...`);
+  await fetchIssues(repo, repoState);
+  const issues = issueCache.get().filter(i => i.repo === repo.id);
+  promises.push(fetchIssueComments(repo, issues, repoState));
+  promises.push(fetchReviewComments(repo, issues, repoState));
+  await Promise.all(promises);
+  log(`finished processing repo (${repoIndex + 1}/${totalRepos}) - '${repo.name}'...`);
+  repoState.lastSuccessRun = Date.now();
+  await updateState({ repo: state.repo });
+}
+
+function getRepoState(repoID) {
+
+  let repoState;
+
+  if (state.repo) {
+    repoState = state.repo[repoID];
+    if (!repoState) {
+      repoState = state.repo[repoID] = {};
+    }
+  }
+  else {
+    state.repo = { [repoID]: {} };
+    repoState = state.repo[repoID];
+  }
+
+  return repoState;
+
+}

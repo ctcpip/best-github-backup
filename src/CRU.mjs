@@ -2,6 +2,9 @@ import db from './db.mjs';
 import { debug } from './util.mjs';
 import api from './api.mjs';
 import issueCache from './issue-cache.mjs';
+import Semaphore from './semaphore.mjs';
+
+const stateLock = new Semaphore(1);
 
 async function addUserIfMissing(u) {  // eslint-disable-line no-unused-vars
   const user = (await db.find('user', [u.id])).payload.records[0];
@@ -192,10 +195,12 @@ async function updateReviewComment(c, issues) {
 async function updateState(fields, logMessage = 'updating state'){
   debug(logMessage);
 
+  await stateLock.gimme();
   await db.update('state', [{
     id: 1,
     replace: fields,
   }]);
+  stateLock.bye();
 }
 
 async function updateUser(u) {

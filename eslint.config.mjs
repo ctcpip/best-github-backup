@@ -7,6 +7,7 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
+      parserOptions: { ecmaFeatures: { impliedStrict: true } },
       globals: {
         console: true,
         process: true,
