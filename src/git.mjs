@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { __dirname } from './path.mjs';
 import shelly from './shelly.mjs';
 import { debug } from './util.mjs';
-import { stats } from './CRU.mjs';
+import stats from './stats.mjs';
 import args from './args.mjs';
 
 const gitFolder = path.resolve(__dirname, './git');

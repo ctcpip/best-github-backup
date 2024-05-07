@@ -1,7 +1,7 @@
 import db from './db.mjs';
 import args, { validateArgs } from './args.mjs';
 import { debug, log } from './util.mjs';
-import { stats, updateState } from './CRU.mjs';
+import { updateState } from './CRU.mjs';
 import state from './state.mjs';
 import {
   fetchIssueComments,
@@ -14,6 +14,7 @@ import options from './options.mjs';
 import issueCache from './issue-cache.mjs';
 import pkgJSON from './pkgJSON.mjs';
 import { backupGitRepo } from './git.mjs';
+import stats from './stats.mjs';
 
 export default async function backItUp() {
 
