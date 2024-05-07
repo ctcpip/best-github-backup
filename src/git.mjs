@@ -1,10 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { __dirname } from './util.mjs';
+import { __dirname } from './path.mjs';
 import shelly from './shelly.mjs';
 import { debug } from './util.mjs';
 import { stats } from './CRU.mjs';
-import { log } from './util.mjs';
 import args from './args.mjs';
 
 const gitFolder = path.resolve(__dirname, './git');

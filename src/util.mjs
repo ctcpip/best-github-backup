@@ -1,9 +1,5 @@
 import util from 'node:util';
-import { fileURLToPath } from 'url';
-import path from 'node:path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.resolve(path.dirname(__filename), '../');
+import options from './options.mjs';
 
 // enable debug logging with env var:
 // NODE_DEBUG=BEST-GITHUB-BACKUP
@@ -17,7 +13,13 @@ function logWithTimestamp(txt, debug) {
   const logMessage = logTxt.split('\n').map(t => `${timeStamp} - ${t}`).join('\n');
 
   if (debug){
-    debugLog(logMessage);
+    // prioritize cli argument over environment variable
+    if (options.verbose){
+      console.debug(logMessage);
+    }
+    else {
+      debugLog(logMessage);
+    }
   }
   else {
     console.log(logMessage);
@@ -28,7 +30,6 @@ const debug = txt => logWithTimestamp(txt, true);
 const log = txt => logWithTimestamp(txt, false);
 
 export {
-  __dirname,
   debug,
   log,
 };

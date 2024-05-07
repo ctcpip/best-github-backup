@@ -64,7 +64,7 @@ export default async function backItUp() {
       await issueCacheIsLoaded;
 
       if (!options.forceUpdate && repoState.lastSuccessRun + threshold > now) {
-        log(`${r.name} repo fetched within the last ${options.daysThreshold} day(s), skipping...`);
+        debug(`${r.name} repo fetched within the last ${options.daysThreshold} day(s), skipping...`);
       }
       else {
         promises.push(processRepo(r, repoState, i, repos.length));

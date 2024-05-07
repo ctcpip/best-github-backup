@@ -1,4 +1,4 @@
-import { debug, log } from './util.mjs';
+import { debug } from './util.mjs';
 import {
   updateIssue,
   updateIssueComment,
@@ -78,7 +78,7 @@ async function fetchMembers(threshold){
   const now = Date.now();
 
   if (!options.forceUpdate && state.lastSuccessMembers + threshold > now) {
-    log(`members fetched within the last ${options.daysThreshold} day(s), skipping...`);
+    debug(`members fetched within the last ${options.daysThreshold} day(s), skipping...`);
   }
   else {
     debug('fetching members...');
@@ -109,7 +109,7 @@ async function fetchRepos(threshold){
   const now = Date.now();
 
   if (!options.forceUpdate && state.lastSuccessRepos + threshold > now) {
-    log(`repos fetched within the last ${options.daysThreshold} day(s), skipping...`);
+    debug(`repos fetched within the last ${options.daysThreshold} day(s), skipping...`);
   }
   else {
     debug('fetching repos...');

@@ -4,6 +4,7 @@ import pkgJSON from './pkgJSON.mjs';
 /* eslint-disable @stylistic/js/object-property-newline, @stylistic/js/no-multi-spaces */
 const args = parseArgs({
   options: {
+    archive:  { type: 'boolean',  short: 'a' },
     days:     { type: 'string',   short: 'd' },  // daysThreshold
     exclude:  { type: 'string',   short: 'e' },  // excludeRepos
     force:    { type: 'boolean',  short: 'f' },  // forceUpdate
@@ -11,7 +12,8 @@ const args = parseArgs({
     help:     { type: 'boolean',  short: 'h' },
     org:      { type: 'string',   short: 'o' },
     token:    { type: 'string',   short: 't' },
-    version:  { type: 'boolean',  short: 'v' },
+    verbose:  { type: 'boolean',  short: 'v' },
+    version:  { type: 'boolean' },
   },
   strict: false,
 });
@@ -30,7 +32,8 @@ function validateArgs() {
     case args.values.version:{
       console.log(`${pkgJSON.name} v${pkgJSON.version} - ${pkgJSON.homepage}`);
       allGood = false;
-      break;}
+      break;
+    }
     default:
       break;
   }
