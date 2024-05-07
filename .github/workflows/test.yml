@@ -7,14 +7,27 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        system:
+          - { os: macos-latest,     shell: sh }
+          - { os: ubuntu-latest,    shell: sh  }
+          - { os: windows-latest,   shell: bash  }
+    runs-on: ${{ matrix.system.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.system.shell }}
     env:
       ORG: ${{ secrets.ORG }}
       ORG_WITH_REPO: ${{ secrets.ORG_WITH_REPO }}
       TOKEN: ${{ secrets.TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ljharb/actions/node/install@main
-        name: 'nvm install lts/*'
-      - run: |
-          ./test/test.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: run tests
+        run: |
+          npm i
+          npm test --verbose

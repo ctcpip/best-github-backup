@@ -8,7 +8,7 @@
   },
   "scripts": {
     "lint": "eslint {*.mjs,src/**/*.mjs}",
-    "test": "npm run lint && ./test/test.sh"
+    "test": "npm run lint && test/test.sh"
   },
   "repository": {
     "type": "git",

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# expected environment variables:
+# ORG, ORG_WITH_REPO, TOKEN
+
 ctr=0
 
 test() {
