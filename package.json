@@ -7,8 +7,9 @@
     "best-github-backup": "index.mjs"
   },
   "scripts": {
+    "circles": "madge --extensions mjs --circular .",
     "lint": "eslint {*.mjs,src/**/*.mjs}",
-    "test": "npm run lint && test/test.sh"
+    "test": "npm run lint && npm run circles && test/test.sh"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,8 @@
   "homepage": "https://github.com/ctcpip/best-github-backup",
   "devDependencies": {
     "@stylistic/eslint-plugin-js": "^1.8.0",
-    "eslint": "^9.1.1"
+    "eslint": "^9.1.1",
+    "madge": "^7.0.0"
   },
   "dependencies": {
     "fortune": "^5.5.19",
