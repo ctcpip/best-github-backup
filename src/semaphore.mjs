@@ -1,5 +1,4 @@
 export default class Semaphore {
-
   constructor(slots) {
     this.slots = slots;
     this.queue = [];

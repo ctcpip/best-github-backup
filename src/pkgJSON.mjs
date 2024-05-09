@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import { __dirname } from './path.mjs';
+import { packageJSONPath } from './path.mjs';
 
 // import attributes when?
-export default JSON.parse(readFileSync(path.resolve(__dirname, './package.json'), 'utf8').toString());
+export default JSON.parse(readFileSync(packageJSONPath, 'utf8').toString());

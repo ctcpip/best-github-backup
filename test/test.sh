@@ -8,7 +8,7 @@ ctr=0
 test() {
   ctr=$((ctr+1))
   printf "\nrunning test %s" $ctr
-  node ./index.mjs "$1" "$2" "$3" "$4" "$5"
+  node ./src/index.mjs "$1" "$2" "$3" "$4" "$5"
   exitCode=$?
 }
 
@@ -40,6 +40,12 @@ test -o "$ORG_WITH_REPO" -t "$TOKEN" -g
 check 0 "test $ctr failed"
 
 test -o "$ORG_WITH_REPO" -t "$TOKEN" -g
+check 0 "test $ctr failed"
+
+test -o "$ORG_WITH_REPO" -t "$TOKEN" -ga
+check 0 "test $ctr failed"
+
+test -o "$ORG_WITH_REPO" -t "$TOKEN" -ga
 check 0 "test $ctr failed"
 
 if [ "$success" != true ] ; then

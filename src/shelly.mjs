@@ -12,10 +12,9 @@ const { spawn } = childProcess;
  * @param { String } options.cwd
  * @param { String } options.timeout timeout in seconds
  * @param { String } options.useSpawn
- * @returns { Object } { exitCode, stdout, stderr }
+ * @returns { Promise<Object> } { exitCode, stdout, stderr }
  */
 export default async function shelly(cmd, { cwd, timeout, useSpawn } = {}) {
-
   const result = {};
 
   if (timeout) {
@@ -40,7 +39,7 @@ export default async function shelly(cmd, { cwd, timeout, useSpawn } = {}) {
       result.exitCode = 0;
     }
     catch (error) {
-      result.stderr = JSON.stringify(error);
+      result.stderr = JSON.stringify(error, null, 2);
     }
   }
   else {
@@ -59,9 +58,29 @@ export default async function shelly(cmd, { cwd, timeout, useSpawn } = {}) {
       result.stdout = error.stdout ? error.stdout.trim() : '';
       result.stderr = error.stderr ? error.stderr.trim() : '';
     }
-
   }
 
   return result;
+}
 
+/**
+ * execute a shell command optimistically
+ * @param { String } cmd
+ * @param { Object } options
+ * @param { String } options.cwd
+ * @param { String } options.timeout timeout in seconds
+ * @param { String } options.useSpawn
+ * @throws if exit code is not 0
+ * @returns { Promise<String> } stdout
+ */
+export async function run(cmd, { cwd, timeout, useSpawn } = {}) {
+  const cmdResult = await shelly(cmd, { cwd, timeout, useSpawn });
+
+  debug(cmdResult);
+
+  if (cmdResult.exitCode !== 0) {
+    throw new Error(JSON.stringify(cmdResult, null, 2));
+  }
+
+  return cmdResult.stdout;
 }

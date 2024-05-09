@@ -6,15 +6,14 @@ import options from './options.mjs';
 const debugLog = util.debuglog('BEST-GITHUB-BACKUP');
 
 function logWithTimestamp(txt, debug) {
-
-  const logTxt = typeof txt === 'string' ? txt : JSON.stringify(txt);
+  const logTxt = typeof txt === 'string' ? txt : JSON.stringify(txt, null, 2);
 
   const timeStamp = (new Date()).toISOString().replace('T', ' ').replace(/\.\d+Z/, '');
   const logMessage = logTxt.split('\n').map(t => `${timeStamp} - ${t}`).join('\n');
 
-  if (debug){
+  if (debug) {
     // prioritize cli argument over environment variable
-    if (options.verbose){
+    if (options.verbose) {
       console.debug(logMessage);
     }
     else {

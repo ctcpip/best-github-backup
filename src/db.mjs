@@ -1,12 +1,9 @@
-import { cwd as getCWD } from 'node:process';
-import path from 'node:path';
 import fortune from 'fortune';
 import fsAdapter from 'fortune-fs';
 import schema from './scheme-a-little-schema-of-me.mjs';
-
-const cwd = getCWD();
+import { dbPath } from './path.mjs';
 
 export default fortune(schema, {
-  adapter: [fsAdapter, { path: path.join(cwd, 'data') }],
+  adapter: [fsAdapter, { path: dbPath }],
   settings: { enforceLinks: true },
 });

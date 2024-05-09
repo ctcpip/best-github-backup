@@ -2,13 +2,14 @@
   "name": "best-github-backup",
   "version": "1.2.0",
   "description": "the best GitHub backup program (trust me bro)",
-  "main": "index.mjs",
+  "main": "src/index.mjs",
   "bin": {
-    "best-github-backup": "index.mjs"
+    "best-github-backup": "src/index.mjs"
   },
   "scripts": {
     "circles": "madge --extensions mjs --circular .",
     "lint": "eslint {*.mjs,src/**/*.mjs}",
+    "lint:fix": "eslint --fix {*.mjs,src/**/*.mjs}",
     "test": "npm run lint && npm run circles && test/test.sh"
   },
   "repository": {

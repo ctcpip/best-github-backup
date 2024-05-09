@@ -1,5 +1,4 @@
 export default (function issueCache() {
-
   let _issues;
 
   function load(issues) {
@@ -22,5 +21,4 @@ export default (function issueCache() {
     load,
     push,
   };
-
 })();

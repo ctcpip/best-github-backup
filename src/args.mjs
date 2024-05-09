@@ -1,7 +1,7 @@
 import { parseArgs } from 'node:util';
 import pkgJSON from './pkgJSON.mjs';
 
-/* eslint-disable @stylistic/js/object-property-newline, @stylistic/js/no-multi-spaces */
+/* eslint-disable @stylistic/js/key-spacing, @stylistic/js/no-multi-spaces */
 const args = parseArgs({
   options: {
     archive:  { type: 'boolean',  short: 'a' },
@@ -13,14 +13,13 @@ const args = parseArgs({
     org:      { type: 'string',   short: 'o' },
     token:    { type: 'string',   short: 't' },
     verbose:  { type: 'boolean',  short: 'v' },
-    version:  { type: 'boolean' },
+    version:  { type: 'boolean'              },
   },
   strict: false,
 });
 /* eslint-enable */
 
 function validateArgs() {
-
   let allGood = true;
 
   switch (true) {
@@ -38,11 +37,11 @@ function validateArgs() {
       break;
   }
 
-  if (!allGood){
+  if (!allGood) {
     return allGood;  // exit early
   }
 
-  if (!args.values.org){
+  if (!args.values.org) {
     console.error('org argument is required');
     allGood = false;
   }
@@ -63,7 +62,6 @@ function validateArgs() {
   }
 
   return allGood;
-
 }
 
 export default args.values;

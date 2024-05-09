@@ -1,16 +1,15 @@
 export default (function stats() {
-
   const _stats = {};
 
   function clone() {
     _stats['gitRepoCloned'] = (_stats['gitRepoCloned'] || 0) + 1;
   }
 
-  function create(type){
+  function create(type) {
     _stats[`${type}Created`] = (_stats[`${type}Created`] || 0) + 1;
   }
 
-  function update(type){
+  function update(type) {
     _stats[`${type}Updated`] = (_stats[`${type}Updated`] || 0) + 1;
   }
 
@@ -26,7 +25,8 @@ export default (function stats() {
 
       sb.push(`${type}s ${operation.toLowerCase()}: ${v}`);
     }
-    return sb.join('\n');
+
+    return sb.length > 0 ? sb.join('\n') : 'there were no updates; everything is already up-to-date!';
   }
 
   return {
@@ -35,5 +35,4 @@ export default (function stats() {
     print,
     update,
   };
-
 })();

@@ -18,7 +18,7 @@ async function addUserIfMissing(u) {  // eslint-disable-line no-unused-vars
 /**
  * finds or creates a record
  */
-async function getRecord(type, id, createdAt, fields = {}){
+async function getRecord(type, id, createdAt, fields = {}) {
   let r = (await db.find(type, [id])).payload.records[0];
 
   if (!r) {
@@ -79,7 +79,6 @@ async function updateIssueComment(c, issues) {
   const updated = Date.parse(c.updated_at);
 
   if (comment) { // update
-
     if (comment.updatedAt !== updated) {
       debug(`updating ${type} ${c.id}`);
       await db.update(type, [{
@@ -93,7 +92,6 @@ async function updateIssueComment(c, issues) {
     }
   }
   else { // create
-
     // find the issue id by querying the issue number
     const issueNumber = Number(c.issue_url.match(/\d+$/)[0]);
     const issue = issues.find(i => i.number === issueNumber);
@@ -104,7 +102,7 @@ async function updateIssueComment(c, issues) {
     }
     else {
       // it's possible to have orphaned comments 😿
-      console.error(`couldn't find issue for ${JSON.stringify(c)}`);
+      console.error(`couldn't find issue for ${JSON.stringify(c, null, 2)}`);
     }
 
     debug(`creating ${type} ${c.id}`);
@@ -150,7 +148,6 @@ async function updateReviewComment(c, issues) {
   const updated = Date.parse(c.updated_at);
 
   if (comment) { // update
-
     if (comment.updatedAt !== updated) {
       debug(`updating ${type} ${c.id}`);
       await db.update(type, [{
@@ -164,7 +161,6 @@ async function updateReviewComment(c, issues) {
     }
   }
   else { // create
-
     // find the issue id by querying the issue number
     const issueNumber = Number(c.pull_request_url.match(/\d+$/)[0]);
     const issue = issues.find(i => i.number === issueNumber);
@@ -175,7 +171,7 @@ async function updateReviewComment(c, issues) {
     }
     else {
       // it's possible to have orphaned comments 😿
-      console.error(`couldn't find issue for ${JSON.stringify(c)}`);
+      console.error(`couldn't find issue for ${JSON.stringify(c, null, 2)}`);
     }
 
     debug(`creating ${type} ${c.id}`);
@@ -193,7 +189,11 @@ async function updateReviewComment(c, issues) {
   }
 }
 
-async function updateState(fields, logMessage = 'updating state'){
+async function updateState(fields, logMessage) {
+  if (!logMessage) {
+    throw new Error('logMessage is required');
+  }
+
   debug(logMessage);
 
   await stateLock.gimme();

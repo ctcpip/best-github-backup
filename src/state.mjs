@@ -1,4 +1,4 @@
-import { getRecord } from './CRU.mjs';
+import { getRecord } from './create-read-update.mjs';
 
 const oneStateToRuleThemAll = await getRecord('state', 1);
 

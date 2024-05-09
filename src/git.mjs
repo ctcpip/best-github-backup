@@ -1,18 +1,15 @@
-import path from 'node:path';
 import fs from 'node:fs';
-import { __dirname } from './path.mjs';
-import shelly from './shelly.mjs';
+import { gitPath } from './path.mjs';
+import { run } from './shelly.mjs';
 import { debug } from './util.mjs';
 import stats from './stats.mjs';
 import args from './args.mjs';
 
-const gitFolder = path.resolve(__dirname, './git');
-const cmdOptions = { timeout: 60 * 5 };  // 5 minute timeout
-
 async function backupGitRepo(repo) {
-  const gitRepoPath = `${gitFolder}/${repo.name}`;
+  const gitRepoPath = `${gitPath}/${repo.name}`;
   const clone = !fs.existsSync(gitRepoPath);
-  let cmdResult;
+  const cmdOptions = { timeout: 60 * 5 };  // 5 minute timeout
+  let stdout;
 
   debug('fetching git repo...');
 
@@ -20,24 +17,17 @@ async function backupGitRepo(repo) {
   const url = `https://${args.token}@${cloneURL.host}${cloneURL.pathname}`;
 
   if (clone) {
-    cmdResult = await shelly(`git clone --single-branch ${url} ${gitRepoPath}`, cmdOptions);
+    stdout = await run(`git clone --single-branch ${url} ${gitRepoPath}`, cmdOptions);
   }
   else {
-    cmdResult = await shelly(`git -C ${gitRepoPath} pull`, cmdOptions);
+    stdout = await run(`git -C ${gitRepoPath} pull`, cmdOptions);
   }
 
-  if (cmdResult.exitCode === 0) {
-    debug(cmdResult);
-
-    if (clone){
-      stats.clone();
-    }
-    else if (cmdResult.stdout !== 'Already up to date.') {
-      stats.update('gitRepo');
-    }
+  if (clone) {
+    stats.clone();
   }
-  else {
-    throw new Error(JSON.stringify(cmdResult));
+  else if (stdout !== 'Already up to date.') {
+    stats.update('gitRepo');
   }
 }
 

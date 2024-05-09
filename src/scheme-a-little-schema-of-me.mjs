@@ -38,10 +38,12 @@ export default {
     updatedAt: Number,
   },
   state: {
-    lastRun: Number,
+    lastRunArchive: Number,
+    lastRunBackup: Number,
     lastSuccessMembers: Number,
     lastSuccessRepos: Number,
-    lastSuccessRun: Number,
+    lastSuccessRunArchive: Number,
+    lastSuccessRunBackup: Number,
     org: String,
     repo: Object,  // per-repo state, indexed by repoID
     //  {

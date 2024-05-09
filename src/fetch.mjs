@@ -6,7 +6,7 @@ import {
   updateReviewComment,
   updateState,
   updateUser,
-} from './CRU.mjs';
+} from './create-read-update.mjs';
 import api from './api.mjs';
 import args from './args.mjs';
 import options from './options.mjs';
@@ -14,7 +14,7 @@ import state from './state.mjs';
 
 const { org } = args;
 
-async function fetchIssueComments(repo, repoIssues, repoState){
+async function fetchIssueComments(repo, repoIssues, repoState) {
   debug('fetching issue comments...');
   const now = Date.now();
   const promises = [];
@@ -32,7 +32,7 @@ async function fetchIssueComments(repo, repoIssues, repoState){
     `GET /repos/{owner}/{repo}/issues/comments`,
     params,
   )) {
-    debug('data received');
+    debug(`${repo.name} issue comments data received`);
     for (const c of response.data) {
       promises.push(updateIssueComment(c, repoIssues));
     }
@@ -40,10 +40,10 @@ async function fetchIssueComments(repo, repoIssues, repoState){
 
   await Promise.all(promises);
   repoState.lastSuccessIssueComments = now;
-  await updateState({ repo: state.repo });
+  await updateState({ repo: state.repo }, `updating ${repo.name} lastSuccessIssueComments`);
 }
 
-async function fetchIssues(repo, repoState){
+async function fetchIssues(repo, repoState) {
   debug('fetching issues...');
   const now = Date.now();
   const promises = [];
@@ -54,7 +54,7 @@ async function fetchIssues(repo, repoState){
     state: 'all',
   };
 
-  if (!options.forceUpdate){
+  if (!options.forceUpdate) {
     params.since = since(repoState.lastSuccessIssues);
   }
 
@@ -62,7 +62,7 @@ async function fetchIssues(repo, repoState){
     `GET /repos/{owner}/{repo}/issues`,
     params,
   )) {
-    debug('data received');
+    debug(`${repo.name} issues data received`);
     for (const i of response.data) {
       promises.push(updateIssue(i, repo.id));
     }
@@ -70,15 +70,14 @@ async function fetchIssues(repo, repoState){
 
   await Promise.all(promises);
   repoState.lastSuccessIssues = now;
-  await updateState({ repo: state.repo });
+  await updateState({ repo: state.repo }, `updating ${repo.name} lastSuccessIssues`);
 }
 
-async function fetchMembers(threshold){
-
+async function fetchMembers(threshold) {
   const now = Date.now();
 
   if (!options.forceUpdate && state.lastSuccessMembers + threshold > now) {
-    debug(`members fetched within the last ${options.daysThreshold} day(s), skipping...`);
+    debug(`members fetched within the last ${options.daysThreshold} day(s); skipping...`);
   }
   else {
     debug('fetching members...');
@@ -92,24 +91,22 @@ async function fetchMembers(threshold){
         per_page: 100,
       },
     )) {
-      debug('data received');
+      debug(`members data received`);
       for (const m of response.data) {
         promises.push(updateUser(m));
       }
     }
 
     await Promise.all(promises);
-    await updateState({ lastSuccessMembers: now });
+    await updateState({ lastSuccessMembers: now }, 'updating lastSuccessMembers');
   }
-
 }
 
-async function fetchRepos(threshold){
-
+async function fetchRepos(threshold) {
   const now = Date.now();
 
   if (!options.forceUpdate && state.lastSuccessRepos + threshold > now) {
-    debug(`repos fetched within the last ${options.daysThreshold} day(s), skipping...`);
+    debug(`repos fetched within the last ${options.daysThreshold} day(s); skipping...`);
   }
   else {
     debug('fetching repos...');
@@ -122,7 +119,7 @@ async function fetchRepos(threshold){
         per_page: 100,
       },
     )) {
-      debug('data received');
+      debug(`repos data received`);
       for (const r of response.data) {
         promises.push(updateRepo(r));
       }
@@ -130,13 +127,11 @@ async function fetchRepos(threshold){
 
     await Promise.all(promises);
 
-    await updateState({ lastSuccessRepos: now });
-
+    await updateState({ lastSuccessRepos: now }, 'updating lastSuccessRepos');
   }
-
 }
 
-async function fetchReviewComments(repo, repoIssues, repoState){
+async function fetchReviewComments(repo, repoIssues, repoState) {
   debug('fetching review comments...');
 
   const now = Date.now();
@@ -155,7 +150,7 @@ async function fetchReviewComments(repo, repoIssues, repoState){
     `GET /repos/{owner}/{repo}/pulls/comments`,
     params,
   )) {
-    debug('data received');
+    debug(`${repo.name} review comments data received`);
     for (const c of response.data) {
       promises.push(updateReviewComment(c, repoIssues));
     }
@@ -163,17 +158,15 @@ async function fetchReviewComments(repo, repoIssues, repoState){
 
   await Promise.all(promises);
   repoState.lastSuccessReviewComments = now;
-  await updateState({ repo: state.repo });
+  await updateState({ repo: state.repo }, `updating ${repo.name} lastSuccessReviewComments`);
 }
 
 function since(timestamp) {
-
   if (timestamp && !options.forceUpdate) {
     return new Date(timestamp).toISOString();
   }
 
   return undefined;
-
 }
 
 export {
