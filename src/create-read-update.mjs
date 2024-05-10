@@ -34,10 +34,16 @@ async function getRecord(type, id, createdAt, fields = {}) {
       ),
     ])).payload.records[0];
 
-    stats.create(type);
-
-    if (type === 'issue') {
-      issueCache.push(r);
+    switch (type) {
+      case 'state':
+        // don't add a stat for state
+        break;
+      case 'issue':
+        issueCache.push(r);
+        // FALLS THROUGH
+      default:
+        stats.create(type);
+        break;
     }
   }
 

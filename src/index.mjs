@@ -16,8 +16,6 @@ let booContinue = true;
 console.log('\n');
 
 console.log(`${pkgJSON.name} v${pkgJSON.version}\n`);
-debug(`options: ${JSON.stringify(options, null, 2)}`);
-debug(`state: ${JSON.stringify(state, null, 2)}`);
 
 if (!validateArgs()) {
   console.log('\n');
@@ -30,6 +28,9 @@ if (state.org && state.org !== org) {
 }
 
 if (booContinue) {
+  debug(`options: ${JSON.stringify(options, null, 2)}`);
+  debug(`state: ${JSON.stringify(state, null, 2)}`);
+
   let fatalError;
   try {
     if (options.archive) {
@@ -43,9 +44,10 @@ if (booContinue) {
     fatalError = error;
   }
 
-  log(`\nbackup summary:\n\n${stats.print()}\n`);
+  log(`\nsummary:\n\n${stats.print()}\n`);
 
   if (fatalError) {
+    process.exitCode = 33;
     console.error(`Fatal error: ${fatalError.message}\n\n${fatalError.stack}`);
   }
   else {

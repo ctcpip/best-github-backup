@@ -131,6 +131,4 @@ dist
 
 .vscode
 .DS_Store
-/archive
-/data*
-/git
+/data

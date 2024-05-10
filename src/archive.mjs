@@ -1,5 +1,5 @@
 import db from './db.mjs';
-import { __dirname, gitPath } from './path.mjs';
+import { archivePath, dataPath, gitPath, gitRepoArchivePath } from './org-path.mjs';
 import fs from 'node:fs';
 import { run } from './shelly.mjs';
 import stats from './stats.mjs';
@@ -18,19 +18,20 @@ export default async function archiveIt() {
   await updateState({ lastRunArchive: now, org }, 'updating lastRunArchive');
 
   const cmdOptions = Object.freeze({ timeout: 60 * 5 });  // 5 minute timeout
-  const archivePath = `${__dirname}/archive`;
+
   const promises = [];
 
   fs.mkdirSync(archivePath, { recursive: true });
 
-  promises.push(archiveGitHubData(archivePath, cmdOptions));
+  promises.push(archiveGitHubData(cmdOptions));
 
   if (options.includeGitRepo) {
+    fs.mkdirSync(gitRepoArchivePath, { recursive: true });
     const repos = (await db.find('repo')).payload.records;
 
     for (let i = 0; i < repos.length; i++) {
       const repo = repos[i];
-      promises.push(archiveGitRepo(archivePath, cmdOptions, repo));
+      promises.push(archiveGitRepo(cmdOptions, repo));
     }
   }
 
@@ -39,7 +40,7 @@ export default async function archiveIt() {
   await updateState({ lastSuccessRunArchive: now }, 'updating lastSuccessRunArchive');
 }
 
-async function archiveGitHubData(archivePath, cmdOptions) {
+async function archiveGitHubData(cmdOptions) {
   const prefix = 'github-data.tar.gz.';
 
   const existingFiles = fs.readdirSync(archivePath).filter(filename => filename.startsWith(prefix));
@@ -48,7 +49,7 @@ async function archiveGitHubData(archivePath, cmdOptions) {
     fs.unlinkSync(`${archivePath}/${file}`);
   }
 
-  const cmd = `tar zcf - -C ${__dirname} data | split -b 64m - ${archivePath}/${prefix}`;
+  const cmd = `tar zcf - -C '${dataPath}' db | split -b 64m - '${archivePath}/${prefix}'`;
   await run(cmd, cmdOptions);
 
   if (existingFiles) {
@@ -59,7 +60,7 @@ async function archiveGitHubData(archivePath, cmdOptions) {
   }
 }
 
-async function archiveGitRepo(archivePath, baseCmdOptions, repo) {
+async function archiveGitRepo(baseCmdOptions, repo) {
   const gitRepoPath = `${gitPath}/${repo.name}`;
 
   if (!fs.existsSync(gitRepoPath)) {
@@ -68,7 +69,7 @@ async function archiveGitRepo(archivePath, baseCmdOptions, repo) {
 
   const cmdOptions = { ...baseCmdOptions, cwd: gitRepoPath };
   const repoHEADTip = await run(`git rev-parse HEAD`, cmdOptions);
-  const bundlePath = `${archivePath}/${repo.name}`;
+  const bundlePath = `${gitRepoArchivePath}/${repo.name}`;
   const bundleExists = fs.existsSync(bundlePath);
 
   if (bundleExists) {
@@ -81,7 +82,7 @@ async function archiveGitRepo(archivePath, baseCmdOptions, repo) {
   }
 
   await run('git gc --auto', cmdOptions);
-  await run(`git bundle create ${bundlePath} HEAD`, cmdOptions);
+  await run(`git bundle create '${bundlePath}' HEAD`, cmdOptions);
   const bundleHEADTip = await getBundleHEADTip(bundlePath, cmdOptions);
   assert.equal(bundleHEADTip, repoHEADTip, `${repo.name} bundle tip ${bundleHEADTip} does not match repo tip ${repoHEADTip}`);
 
@@ -94,7 +95,7 @@ async function archiveGitRepo(archivePath, baseCmdOptions, repo) {
 }
 
 async function getBundleHEADTip(bundlePath) {
-  const stdout = await run(`git bundle list-heads ${bundlePath}`);
+  const stdout = await run(`git bundle list-heads '${bundlePath}'`);
   return stdout.split(' ')[0];
 }
 

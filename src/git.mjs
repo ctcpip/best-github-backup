@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { gitPath } from './path.mjs';
+import { gitPath } from './org-path.mjs';
 import { run } from './shelly.mjs';
 import { debug } from './util.mjs';
 import stats from './stats.mjs';
@@ -17,10 +17,10 @@ async function backupGitRepo(repo) {
   const url = `https://${args.token}@${cloneURL.host}${cloneURL.pathname}`;
 
   if (clone) {
-    stdout = await run(`git clone --single-branch ${url} ${gitRepoPath}`, cmdOptions);
+    stdout = await run(`git clone --single-branch '${url}' '${gitRepoPath}'`, cmdOptions);
   }
   else {
-    stdout = await run(`git -C ${gitRepoPath} pull`, cmdOptions);
+    stdout = await run(`git -C '${gitRepoPath}' pull`, cmdOptions);
   }
 
   if (clone) {
