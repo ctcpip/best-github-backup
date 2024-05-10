@@ -23,14 +23,14 @@
   },
   "homepage": "https://github.com/ctcpip/best-github-backup",
   "devDependencies": {
-    "@stylistic/eslint-plugin-js": "^1.8.0",
-    "eslint": "^9.1.1",
+    "@stylistic/eslint-plugin-js": "^2.1.0",
+    "eslint": "^9.2.0",
     "madge": "^7.0.0"
   },
   "dependencies": {
     "fortune": "^5.5.19",
-    "fortune-fs": "^1.2.0",
-    "octokit": "^3.2.0"
+    "fortune-fs": "^1.2.1",
+    "octokit": "^4.0.2"
   },
   "engines": {
     "node": ">=20"
