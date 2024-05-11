@@ -18,7 +18,7 @@ export default async function backItUp() {
   const { org } = args;
   const now = Date.now();
 
-  log(`backing up org '${org}'...`);
+  log(`backing up org '${org}'`);
 
   await updateState({ lastRunBackup: now, org }, 'updating lastRunBackup');
 
@@ -42,7 +42,7 @@ export default async function backItUp() {
     await issueCacheIsLoaded;
 
     if (!options.forceUpdate && repoState.lastSuccessRun + threshold > now) {
-      debug(`${r.name} repo fetched within the last ${options.daysThreshold} day(s); skipping...`);
+      debug(`'${r.name}' fetched within the last ${options.daysThreshold} day(s); skipping`);
     }
     else {
       promises.push(processRepo(r, repoState, i, repos.length));
@@ -56,15 +56,15 @@ export default async function backItUp() {
 async function processRepo(repo, repoState, repoIndex, totalRepos) {
   const promises = [];
   if (options.includeGitRepo) { promises.push(backupGitRepo(repo)); }
-  debug(`started processing repo (${repoIndex + 1}/${totalRepos}) - '${repo.name}'...`);
+  debug(`started processing repo (${repoIndex + 1}/${totalRepos}) - '${repo.name}'`);
   await fetchIssues(repo, repoState);
   const issues = issueCache.get().filter(i => i.repo === repo.id);
   promises.push(fetchIssueComments(repo, issues, repoState));
   promises.push(fetchReviewComments(repo, issues, repoState));
   await Promise.all(promises);
-  log(`finished processing repo (${repoIndex + 1}/${totalRepos}) - '${repo.name}'...`);
+  log(`finished processing repo (${repoIndex + 1}/${totalRepos}) - '${repo.name}'`);
   repoState.lastSuccessRun = Date.now();
-  await updateState({ repo: state.repo }, `updating ${repo.name} lastSuccessRun`);
+  await updateState({ repo: state.repo }, `'${repo.name}' - updating lastSuccessRun`);
 }
 
 function getRepoState(repoID) {

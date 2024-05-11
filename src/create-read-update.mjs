@@ -1,6 +1,6 @@
 import db from './db.mjs';
 import { debug } from './util.mjs';
-import api from './api.mjs';
+import { api, rateLimitLock } from './api.mjs';
 import issueCache from './issue-cache.mjs';
 import Semaphore from './semaphore.mjs';
 import stats from './stats.mjs';
@@ -10,7 +10,9 @@ const stateLock = new Semaphore(1);
 async function addUserIfMissing(u) {  // eslint-disable-line no-unused-vars
   const user = (await db.find('user', [u.id])).payload.records[0];
   if (!user) {
+    await rateLimitLock.gimme();
     const missingUser = (await api.request('GET /users/{username}', { username: u.login })).data;
+    rateLimitLock.bye();
     await updateUser(missingUser);
   }
 }
@@ -215,8 +217,10 @@ async function updateUser(u) {
   const user = await getRecord(type, u.id, u.created_at, { login: u.login });
 
   if (!user.name) {
+    await rateLimitLock.gimme();
     debug(`updating ${type} ${u.id}`);
     const userData = (await api.request('GET /users/{username}', { username: u.login })).data;
+    rateLimitLock.bye();
     const name = userData.name || 'null';
 
     await db.update(type, [{

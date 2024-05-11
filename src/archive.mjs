@@ -64,7 +64,7 @@ async function archiveGitRepo(baseCmdOptions, repo) {
   const gitRepoPath = `${gitPath}/${repo.name}`;
 
   if (!fs.existsSync(gitRepoPath)) {
-    throw new Error(`git repo missing for ${repo.name}`);
+    throw new Error(`'${repo.name}' - git repo missing`);
   }
 
   const cmdOptions = { ...baseCmdOptions, cwd: gitRepoPath };
@@ -76,7 +76,7 @@ async function archiveGitRepo(baseCmdOptions, repo) {
     const bundleHEADTip = await getBundleHEADTip(bundlePath);
 
     if (bundleHEADTip === repoHEADTip) {
-      debug(`${repo.name} bundle is up-to-date; skipping...`);
+      debug(`'${repo.name}' - bundle is up-to-date; skipping`);
       return;
     }
   }
@@ -84,7 +84,7 @@ async function archiveGitRepo(baseCmdOptions, repo) {
   await run('git gc --auto', cmdOptions);
   await run(`git bundle create '${bundlePath}' HEAD`, cmdOptions);
   const bundleHEADTip = await getBundleHEADTip(bundlePath, cmdOptions);
-  assert.equal(bundleHEADTip, repoHEADTip, `${repo.name} bundle tip ${bundleHEADTip} does not match repo tip ${repoHEADTip}`);
+  assert.equal(bundleHEADTip, repoHEADTip, `'${repo.name}' bundle tip ${bundleHEADTip} does not match repo tip ${repoHEADTip}`);
 
   if (bundleExists) {
     stats.update('gitRepoArchive');

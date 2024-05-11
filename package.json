@@ -1,13 +1,13 @@
 {
   "name": "best-github-backup",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "the best GitHub backup program (trust me bro)",
   "main": "src/index.mjs",
   "bin": {
     "best-github-backup": "src/index.mjs"
   },
   "scripts": {
-    "circles": "madge --extensions mjs --circular .",
+    "circles": "madge --extensions mjs --circular src",
     "lint": "eslint {*.mjs,src/**/*.mjs}",
     "lint:fix": "eslint --fix {*.mjs,src/**/*.mjs}",
     "test": "npm run lint && npm run circles && test/test.sh"
@@ -32,6 +32,7 @@
     "fortune-fs": "^1.2.1",
     "octokit": "^4.0.2"
   },
+  "files": ["src"],
   "engines": {
     "node": ">=20"
   }

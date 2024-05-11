@@ -11,7 +11,7 @@ async function backupGitRepo(repo) {
   const cmdOptions = { timeout: 60 * 5 };  // 5 minute timeout
   let stdout;
 
-  debug('fetching git repo...');
+  debug(`'${repo.name}' - fetching git repo`);
 
   const cloneURL = new URL(repo.cloneURL);
   const url = `https://${args.token}@${cloneURL.host}${cloneURL.pathname}`;

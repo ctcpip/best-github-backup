@@ -7,7 +7,7 @@ import {
   updateState,
   updateUser,
 } from './create-read-update.mjs';
-import api from './api.mjs';
+import { api, rateLimitLock } from './api.mjs';
 import args from './args.mjs';
 import options from './options.mjs';
 import state from './state.mjs';
@@ -15,8 +15,6 @@ import state from './state.mjs';
 const { org } = args;
 
 async function fetchIssueComments(repo, repoIssues, repoState) {
-  debug('fetching issue comments...');
-  const now = Date.now();
   const promises = [];
   const params = {
     owner: org,
@@ -28,24 +26,28 @@ async function fetchIssueComments(repo, repoIssues, repoState) {
     params.since = since(repoState.lastSuccessIssueComments);
   }
 
+  await rateLimitLock.gimme();
+  debug(`'${repo.name}' - fetching issue comments`);
+  const now = Date.now();
+
   for await (const response of api.paginate.iterator(
     `GET /repos/{owner}/{repo}/issues/comments`,
     params,
   )) {
-    debug(`${repo.name} issue comments data received`);
+    debug(`'${repo.name}' - issue comments data received`);
     for (const c of response.data) {
       promises.push(updateIssueComment(c, repoIssues));
     }
   }
 
+  rateLimitLock.bye();
+
   await Promise.all(promises);
   repoState.lastSuccessIssueComments = now;
-  await updateState({ repo: state.repo }, `updating ${repo.name} lastSuccessIssueComments`);
+  await updateState({ repo: state.repo }, `'${repo.name}' - updating lastSuccessIssueComments`);
 }
 
 async function fetchIssues(repo, repoState) {
-  debug('fetching issues...');
-  const now = Date.now();
   const promises = [];
   const params = {
     owner: org,
@@ -58,31 +60,38 @@ async function fetchIssues(repo, repoState) {
     params.since = since(repoState.lastSuccessIssues);
   }
 
+  await rateLimitLock.gimme();
+  debug(`'${repo.name}' - fetching issues`);
+  const now = Date.now();
+
   for await (const response of api.paginate.iterator(
     `GET /repos/{owner}/{repo}/issues`,
     params,
   )) {
-    debug(`${repo.name} issues data received`);
+    debug(`'${repo.name}' - issues data received`);
     for (const i of response.data) {
       promises.push(updateIssue(i, repo.id));
     }
   }
 
+  rateLimitLock.bye();
+
   await Promise.all(promises);
   repoState.lastSuccessIssues = now;
-  await updateState({ repo: state.repo }, `updating ${repo.name} lastSuccessIssues`);
+  await updateState({ repo: state.repo }, `'${repo.name}' - updating lastSuccessIssues`);
 }
 
 async function fetchMembers(threshold) {
-  const now = Date.now();
+  let now = Date.now();
 
   if (!options.forceUpdate && state.lastSuccessMembers + threshold > now) {
-    debug(`members fetched within the last ${options.daysThreshold} day(s); skipping...`);
+    debug(`members fetched within the last ${options.daysThreshold} day(s); skipping`);
   }
   else {
-    debug('fetching members...');
-    const now = Date.now();
     const promises = [];
+    await rateLimitLock.gimme();
+    debug('fetching members');
+    now = Date.now();
 
     for await (const response of api.paginate.iterator(
       'GET /orgs/{org}/members',
@@ -97,20 +106,24 @@ async function fetchMembers(threshold) {
       }
     }
 
+    rateLimitLock.bye();
+
     await Promise.all(promises);
     await updateState({ lastSuccessMembers: now }, 'updating lastSuccessMembers');
   }
 }
 
 async function fetchRepos(threshold) {
-  const now = Date.now();
+  let now = Date.now();
 
   if (!options.forceUpdate && state.lastSuccessRepos + threshold > now) {
-    debug(`repos fetched within the last ${options.daysThreshold} day(s); skipping...`);
+    debug(`repos fetched within the last ${options.daysThreshold} day(s); skipping`);
   }
   else {
-    debug('fetching repos...');
     const promises = [];
+    await rateLimitLock.gimme();
+    debug('fetching repos');
+    now = Date.now();
 
     for await (const response of api.paginate.iterator(
       'GET /orgs/{org}/repos',
@@ -125,6 +138,8 @@ async function fetchRepos(threshold) {
       }
     }
 
+    rateLimitLock.bye();
+
     await Promise.all(promises);
 
     await updateState({ lastSuccessRepos: now }, 'updating lastSuccessRepos');
@@ -132,9 +147,6 @@ async function fetchRepos(threshold) {
 }
 
 async function fetchReviewComments(repo, repoIssues, repoState) {
-  debug('fetching review comments...');
-
-  const now = Date.now();
   const promises = [];
   const params = {
     owner: org,
@@ -146,19 +158,25 @@ async function fetchReviewComments(repo, repoIssues, repoState) {
     params.since = since(repoState.lastSuccessReviewComments);
   }
 
+  await rateLimitLock.gimme();
+  debug(`'${repo.name}' - fetching review comments`);
+  const now = Date.now();
+
   for await (const response of api.paginate.iterator(
     `GET /repos/{owner}/{repo}/pulls/comments`,
     params,
   )) {
-    debug(`${repo.name} review comments data received`);
+    debug(`'${repo.name}' - review comments data received`);
     for (const c of response.data) {
       promises.push(updateReviewComment(c, repoIssues));
     }
   }
 
+  rateLimitLock.bye();
+
   await Promise.all(promises);
   repoState.lastSuccessReviewComments = now;
-  await updateState({ repo: state.repo }, `updating ${repo.name} lastSuccessReviewComments`);
+  await updateState({ repo: state.repo }, `'${repo.name}' - updating lastSuccessReviewComments`);
 }
 
 function since(timestamp) {
