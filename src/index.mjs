@@ -8,19 +8,24 @@ import pkgJSON from './pkgJSON.mjs';
 import { debug, log } from './util.mjs';
 import state from './state.mjs';
 import stats from './stats.mjs';
+import * as color from 'colorette';
 
 const { org } = args;
 
 let booContinue = true;
 
-console.log('\n');
+const { allGood, errors, helpMe } = validateArgs();
 
-console.log(`${pkgJSON.name} v${pkgJSON.version}\n`);
+if (!helpMe) {
+  console.log(color.magentaBright(`\n${pkgJSON.name} v${pkgJSON.version} - ${pkgJSON.homepage}\n`));
 
-if (!validateArgs()) {
-  console.log('\n');
-  booContinue = false;
+  if (!allGood) {
+    console.error(color.redBright(errors.join('\n')));
+    console.log(`\nrun \`${color.whiteBright('best-github-backup -h')}\` for help\n`);
+  }
 }
+
+booContinue = allGood;
 
 if (state.org && state.org !== org) {
   console.error(`\nspecified org '${org}' does not match DB org '${state.org}'. can't continue\n`);
@@ -34,6 +39,10 @@ if (booContinue) {
   let fatalError;
   try {
     if (options.archive) {
+      if (!state.lastSuccessRunBackup) {
+        throw new Error(`no prior backup found; can't archive`);
+      }
+
       await archiveIt();
     }
     else {
@@ -44,11 +53,13 @@ if (booContinue) {
     fatalError = error;
   }
 
-  log(`\nsummary:\n\n${stats.print()}\n`);
+  if (stats.any() || !fatalError) {
+    log(`\nsummary:\n\n${stats.print()}\n`);
+  }
 
   if (fatalError) {
     process.exitCode = 33;
-    console.error(`Fatal error: ${fatalError.message}\n\n${fatalError.stack}`);
+    console.error(color.redBright(`\nFatal error: ${fatalError.message}\n\n${fatalError.stack}\n`));
   }
   else {
     log('...done!\n');

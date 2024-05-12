@@ -1,5 +1,5 @@
 import { parseArgs } from 'node:util';
-import pkgJSON from './pkgJSON.mjs';
+import help from './help.mjs';
 
 /* eslint-disable @stylistic/js/key-spacing, @stylistic/js/no-multi-spaces */
 const args = parseArgs({
@@ -8,7 +8,7 @@ const args = parseArgs({
     days:     { type: 'string',   short: 'd' },  // daysThreshold
     exclude:  { type: 'string',   short: 'e' },  // excludeRepos
     force:    { type: 'boolean',  short: 'f' },  // forceUpdate
-    git:      { type: 'boolean',  short: 'g' },  // includeGitRepo
+    git:      { type: 'boolean',  short: 'g' },  // includeGitRepos
     help:     { type: 'boolean',  short: 'h' },
     org:      { type: 'string',   short: 'o' },
     token:    { type: 'string',   short: 't' },
@@ -21,15 +21,18 @@ const args = parseArgs({
 
 function validateArgs() {
   let allGood = true;
+  let helpMe = false;
 
   switch (true) {
     case args.values.help:
     case args.positionals.includes('help'):
-      console.log('do a help');
+      help();
+      helpMe = true;
       allGood = false;
       break;
     case args.values.version:{
-      console.log(`${pkgJSON.name} v${pkgJSON.version} - ${pkgJSON.homepage}`);
+      // version is already printed on every run,
+      // so just exit
       allGood = false;
       break;
     }
@@ -38,30 +41,32 @@ function validateArgs() {
   }
 
   if (!allGood) {
-    return allGood;  // exit early
+    return { allGood, helpMe }; // exit early
   }
 
+  const errors = [];
+
   if (!args.values.org) {
-    console.error('org argument is required');
+    errors.push('org argument is required');
     allGood = false;
   }
 
   if (!args.values.token) {
-    console.error('token argument is required');
+    errors.push('token argument is required');
     allGood = false;
   }
 
   if (args.values.days && !Number.isInteger(Number(args.values.days))) {
-    console.error('days is not an integer');
+    errors.push('days is not an integer');
     allGood = false;
   }
 
   if (!allGood) {
-    console.error(`can't do anything 😿`);
+    errors.push(`can't do anything 😿`);
     process.exitCode = 3;
   }
 
-  return allGood;
+  return { allGood, errors, helpMe };
 }
 
 export default args.values;

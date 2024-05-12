@@ -25,7 +25,7 @@ export default async function archiveIt() {
 
   promises.push(archiveGitHubData(cmdOptions));
 
-  if (options.includeGitRepo) {
+  if (options.includeGitRepos) {
     fs.mkdirSync(gitRepoArchivePath, { recursive: true });
     const repos = (await db.find('repo')).payload.records;
 

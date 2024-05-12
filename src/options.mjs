@@ -5,7 +5,7 @@ const {
   days: rawDaysThreshold,
   exclude: rawExcludeRepos,
   force: forceUpdate,
-  git: includeGitRepo,
+  git: includeGitRepos,
   verbose,
 } = args;
 
@@ -16,7 +16,7 @@ export default {
   daysThreshold,
   excludeRepos: rawExcludeRepos?.split(',').filter(r => r).map(r => r.trim()),
   forceUpdate,
-  includeGitRepo,
+  includeGitRepos,
   verbose,
 };
 
