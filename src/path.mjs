@@ -6,7 +6,4 @@ const __dirname = path.resolve(path.dirname(__filename), '../');
 
 const packageJSONPath = path.join(__dirname, '/package.json');
 
-export {
-  __dirname,
-  packageJSONPath,
-};
+export { packageJSONPath };
