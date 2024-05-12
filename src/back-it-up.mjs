@@ -55,7 +55,7 @@ export default async function backItUp() {
 
 async function processRepo(repo, repoState, repoIndex, totalRepos) {
   const promises = [];
-  if (options.includeGitRepo) { promises.push(backupGitRepo(repo)); }
+  if (options.includeGitRepos) { promises.push(backupGitRepo(repo)); }
   debug(`started processing repo (${repoIndex + 1}/${totalRepos}) - '${repo.name}'`);
   await fetchIssues(repo, repoState);
   const issues = issueCache.get().filter(i => i.repo === repo.id);

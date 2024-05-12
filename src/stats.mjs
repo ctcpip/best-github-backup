@@ -29,7 +29,12 @@ export default (function stats() {
     return sb.length > 0 ? sb.join('\n') : 'there were no updates; everything is already up-to-date!';
   }
 
+  function any() {
+    return Object.keys(_stats).length > 0;
+  }
+
   return {
+    any,
     clone,
     create,
     print,
