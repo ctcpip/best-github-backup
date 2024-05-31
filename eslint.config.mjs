@@ -1,54 +1,5 @@
-import js from '@eslint/js';
-import stylisticJS from '@stylistic/eslint-plugin-js';
+import ultraMegaConfig from 'eslint-config-ultra-mega';
 
 export default [
-  js.configs.recommended,
-  {
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      parserOptions: { ecmaFeatures: { impliedStrict: true } },
-      globals: {
-        console: true,
-        process: true,
-        URL: true,
-      },
-    },
-    files: ['*.mjs', 'src/**/*.mjs'],
-    plugins: { '@stylistic/js': stylisticJS },
-    rules: {
-      'arrow-spacing': 'error',
-      'brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
-      eqeqeq: 'error',
-      'no-unused-expressions': 'error',
-      'no-var': 'error',
-      'prefer-const': 'error',
-      'prefer-template': 'error',
-      semi: ['error', 'always'],
-      '@stylistic/js/array-bracket-spacing': ['error', 'never'],
-      '@stylistic/js/block-spacing': 'error',
-      '@stylistic/js/comma-dangle': ['error', 'always-multiline'],
-      '@stylistic/js/comma-spacing': ['error', { before: false, after: true }],
-      '@stylistic/js/comma-style': ['error', 'last'],
-      '@stylistic/js/eol-last': 'error',
-      '@stylistic/js/function-call-spacing': 'error',
-      '@stylistic/js/key-spacing': 'error',
-      '@stylistic/js/keyword-spacing': 'error',
-      '@stylistic/js/indent': ['error', 2, { SwitchCase: 1 }],
-      '@stylistic/js/no-multi-spaces': ['error', { ignoreEOLComments: true }],
-      '@stylistic/js/no-multiple-empty-lines': ['error', { max: 1, maxBOF: 0, maxEOF: 0 }],
-      '@stylistic/js/no-whitespace-before-property': 'error',
-      '@stylistic/js/object-curly-newline': ['error', { multiline: true }],
-      '@stylistic/js/object-curly-spacing': ['error', 'always'],
-      '@stylistic/js/object-property-newline': ['error', { allowAllPropertiesOnSameLine: true }],
-      '@stylistic/js/padded-blocks': ['error', 'never'],
-      '@stylistic/js/quote-props': ['error', 'as-needed'],
-      '@stylistic/js/quotes': ['error', 'single', { allowTemplateLiterals: true }],
-      '@stylistic/js/space-before-blocks': 'error',
-      '@stylistic/js/space-before-function-paren': ['error', { anonymous: 'never', named: 'never', asyncArrow: 'always' }],
-      '@stylistic/js/space-in-parens': 'error',
-      '@stylistic/js/space-infix-ops': 'error',
-      '@stylistic/js/template-curly-spacing': 'error',
-    },
-  },
+  ...ultraMegaConfig,
 ];

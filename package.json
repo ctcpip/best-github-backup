@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/ctcpip/best-github-backup",
   "devDependencies": {
-    "@stylistic/eslint-plugin-js": "^2.1.0",
     "eslint": "^9.2.0",
+    "eslint-config-ultra-mega": "^1.0.0",
     "madge": "^7.0.0"
   },
   "dependencies": {
