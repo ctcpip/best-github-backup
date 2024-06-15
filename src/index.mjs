@@ -59,7 +59,7 @@ if (booContinue) {
 
   if (fatalError) {
     process.exitCode = 33;
-    console.error(color.redBright(`\nFatal error: ${fatalError.message}\n\n${fatalError.stack}\n`));
+    console.error(color.redBright(`\nFatal error: ${fatalError.message}\n\n${fatalError.stack}\n\n${JSON.stringify(fatalError)}\n`));
   }
   else {
     log('...done!\n');

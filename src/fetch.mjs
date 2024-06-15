@@ -14,6 +14,9 @@ import state from './state.mjs';
 
 const { org } = args;
 
+// pattern to match GHSA-IDs. see https://docs.github.com/en/code-security/security-advisories/working-with-global-security-advisories-from-the-github-advisory-database/about-the-github-advisory-database#about-ghsa-ids
+const reGHSA = /ghsa(-[23456789cfghjmpqrvwx]{4}){3}/;
+
 async function fetchIssueComments(repo, repoIssues, repoState) {
   const promises = [];
   const params = {
@@ -134,7 +137,9 @@ async function fetchRepos(threshold) {
     )) {
       debug(`repos data received`);
       for (const r of response.data) {
-        promises.push(updateRepo(r));
+        if (!reGHSA.test(r.name)) { // skip GHSA repos
+          promises.push(updateRepo(r));
+        }
       }
     }
 
