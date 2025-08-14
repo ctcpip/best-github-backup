@@ -20,7 +20,8 @@ async function backupGitRepo(repo) {
     stdout = await run(`git clone --single-branch '${url}' '${gitRepoPath}'`, cmdOptions);
   }
   else {
-    stdout = await run(`git -C '${gitRepoPath}' pull`, cmdOptions);
+    stdout = await run(`git -C '${gitRepoPath}' fetch`, cmdOptions);
+    stdout = await run(`git -C '${gitRepoPath}' reset --hard origin/HEAD`, cmdOptions);
   }
 
   if (clone) {
