@@ -81,5 +81,7 @@ function validateArgs() {
   return { allGood, errors, helpMe };
 }
 
+const validationResult = validateArgs();
+
 export default args.values;
-export { validateArgs };
+export { validationResult };

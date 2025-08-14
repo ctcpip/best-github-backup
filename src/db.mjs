@@ -2,12 +2,12 @@ import fortune from 'fortune';
 import fsAdapter from 'fortune-fs';
 import schema from './scheme-a-little-schema-of-me.mjs';
 import { dbPath } from './org-path.mjs';
-import args from './args.mjs';
+import { validationResult } from './args.mjs';
+const { allGood } = validationResult;
 
-const { org } = args;
 const fortuneOptions = { settings: { enforceLinks: false } };
 
-if (org) {
+if (allGood) {
   // if we don't have an org, we can't do anything,
   // so don't initialize the filesystem DB,
   // which creates erroneous folders at an `undefined` org path

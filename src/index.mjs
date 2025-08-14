@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
+import args, { validationResult } from './args.mjs';
 import options from './options.mjs';
 import backItUp from './back-it-up.mjs';
 import archiveIt from './archive.mjs';
-import args, { validateArgs } from './args.mjs';
 import pkgJSON from './pkgJSON.mjs';
 import { debug, log } from './util.mjs';
 import state from './state.mjs';
@@ -14,7 +14,7 @@ const { org } = args;
 
 let booContinue = true;
 
-const { allGood, errors, helpMe } = validateArgs();
+const { allGood, errors, helpMe } = validationResult;
 
 if (!helpMe) {
   console.log(color.magentaBright(`\n${pkgJSON.name} v${pkgJSON.version} - ${pkgJSON.homepage}\n`));
