@@ -28,7 +28,7 @@ export default async function backItUp() {
   const promises = [];
 
   promises.push(fetchMembers(threshold));
-  await fetchRepos(threshold);
+  await fetchRepos();
   const repos = (await db.find('repo')).payload.records;
 
   for (let i = 0; i < repos.length; i++) {
@@ -41,11 +41,16 @@ export default async function backItUp() {
     const repoState = getRepoState(r.id);
     await issueCacheIsLoaded;
 
+    if (r.deleted) {
+      debug(`'${r.name}' is marked as deleted; skipping`);
+      continue;
+    }
+
     if (!options.forceUpdate && repoState.lastSuccessRun + threshold > now) {
       debug(`'${r.name}' fetched within the last ${options.daysThreshold} day(s); skipping`);
     }
     else {
-      promises.push(processRepo(r, repoState, i, repos.length));
+      promises.push(processRepo(r, repoState, i, repos.filter(r => !r.deleted).length));
     }
   }
 

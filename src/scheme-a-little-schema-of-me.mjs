@@ -34,6 +34,7 @@ export default {
   repo: {
     cloneURL: String,
     createdAt: Number,
+    deleted: Boolean,
     name: String,
     updatedAt: Number,
   },

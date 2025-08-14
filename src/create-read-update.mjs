@@ -133,6 +133,7 @@ async function updateRepo(r) {
   const updated = Date.parse(r.updated_at);
   const fields = {
     cloneURL: r.clone_url,
+    deleted: false,
     name: r.name,
     updatedAt: updated,
   };
@@ -148,6 +149,17 @@ async function updateRepo(r) {
     }]);
     stats.update(type);
   }
+}
+
+async function markRepoAsDeleted(repo) {
+  debug(`marking repo '${repo.name}' as deleted`);
+  await db.update('repo', [{
+    id: repo.id,
+    replace: {
+      ...repo,
+      deleted: true,
+    },
+  }]);
 }
 
 async function updateReviewComment(c, issues) {
@@ -233,6 +245,7 @@ async function updateUser(u) {
 
 export {
   getRecord,
+  markRepoAsDeleted,
   updateIssue,
   updateIssueComment,
   updateRepo,

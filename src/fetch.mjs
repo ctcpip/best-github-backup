@@ -1,5 +1,6 @@
 import { debug } from './util.mjs';
 import {
+  markRepoAsDeleted,
   updateIssue,
   updateIssueComment,
   updateRepo,
@@ -7,6 +8,7 @@ import {
   updateState,
   updateUser,
 } from './create-read-update.mjs';
+import db from './db.mjs';
 import { api, rateLimitLock } from './api.mjs';
 import args from './args.mjs';
 import options from './options.mjs';
@@ -116,39 +118,46 @@ async function fetchMembers(threshold) {
   }
 }
 
-async function fetchRepos(threshold) {
-  let now = Date.now();
+async function fetchRepos() {
+  const promises = [];
+  const activeRepoNames = new Set();
 
-  if (!options.forceUpdate && state.lastSuccessRepos + threshold > now) {
-    debug(`repos fetched within the last ${options.daysThreshold} day(s); skipping`);
-  }
-  else {
-    const promises = [];
-    await rateLimitLock.gimme();
-    debug('fetching repos');
-    now = Date.now();
+  await rateLimitLock.gimme();
+  debug('fetching repos');
+  const now = Date.now();
 
-    for await (const response of api.paginate.iterator(
-      'GET /orgs/{org}/repos',
-      {
-        org,
-        per_page: 100,
-      },
-    )) {
-      debug(`repos data received`);
-      for (const r of response.data) {
-        if (!reGHSA.test(r.name)) { // skip GHSA repos
-          promises.push(updateRepo(r));
-        }
+  for await (const response of api.paginate.iterator(
+    'GET /orgs/{org}/repos',
+    {
+      org,
+      per_page: 100,
+    },
+  )) {
+    debug(`repos data received`);
+    for (const r of response.data) {
+      if (!reGHSA.test(r.name)) { // skip GHSA repos
+        activeRepoNames.add(r.name);
+        promises.push(updateRepo(r));
       }
     }
-
-    rateLimitLock.bye();
-
-    await Promise.all(promises);
-
-    await updateState({ lastSuccessRepos: now }, 'updating lastSuccessRepos');
   }
+
+  rateLimitLock.bye();
+
+  await Promise.all(promises);
+
+  // check for deleted repos
+  const existingRepos = (await db.find('repo')).payload.records;
+  const deletedRepos = existingRepos.filter(r => !r.deleted && !activeRepoNames.has(r.name));
+
+  if (deletedRepos.length > 0) {
+    debug(`found ${deletedRepos.length} deleted repos: ${deletedRepos.map(r => r.name).join(', ')}`);
+    for (const repo of deletedRepos) {
+      await markRepoAsDeleted(repo);
+    }
+  }
+
+  await updateState({ lastSuccessRepos: now }, 'updating lastSuccessRepos');
 }
 
 async function fetchReviewComments(repo, repoIssues, repoState) {
