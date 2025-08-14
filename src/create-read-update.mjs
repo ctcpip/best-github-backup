@@ -117,7 +117,7 @@ async function updateIssueComment(c, issues) {
     comment = (await db.create(type, [
       {
         id: c.id,
-        createdAt: Date.parse(Date.parse(c.created_at)),
+        createdAt: Date.parse(c.created_at),
         body: c.body,
         issue: issueID || null,
         user: c.user?.id || null,
@@ -198,7 +198,7 @@ async function updateReviewComment(c, issues) {
     comment = (await db.create(type, [
       {
         id: c.id,
-        createdAt: Date.parse(Date.parse(c.created_at)),
+        createdAt: Date.parse(c.created_at),
         body: c.body,
         issue: issueID || null,
         user: c.user?.id || null,

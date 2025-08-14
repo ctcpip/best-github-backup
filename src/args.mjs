@@ -46,12 +46,24 @@ function validateArgs() {
 
   const errors = [];
 
-  if (!args.values.org) {
+  if (args.values.org) {
+    if (!/^[a-zA-Z0-9_-]+$/.test(args.values.org) || args.values.org.length < 1 || args.values.org.length > 100) {
+      errors.push('org name is invalid');
+      allGood = false;
+    }
+  }
+  else {
     errors.push('org argument is required');
     allGood = false;
   }
 
-  if (!args.values.token) {
+  if (args.values.token) {
+    if (!/^[A-Za-z0-9_]+$/.test(args.values.token)) {
+      errors.push('token format is invalid');
+      allGood = false;
+    }
+  }
+  else {
     errors.push('token argument is required');
     allGood = false;
   }
