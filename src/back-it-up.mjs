@@ -30,9 +30,12 @@ export default async function backItUp() {
   promises.push(fetchMembers(threshold));
   await fetchRepos();
   const repos = (await db.find('repo')).payload.records;
+  const activeRepos = repos.filter(r => !r.deleted);
+  const deletedRepos = repos.filter(r => r.deleted);
+  debug(`found ${deletedRepos.length} deleted repos: ${deletedRepos.map(r => r.name).join(', ')}; skipping`);
 
-  for (let i = 0; i < repos.length; i++) {
-    const r = repos[i];
+  for (let i = 0; i < activeRepos.length; i++) {
+    const r = activeRepos[i];
 
     if (options.excludeRepos?.includes(r.name)) {
       continue;
@@ -50,7 +53,7 @@ export default async function backItUp() {
       debug(`'${r.name}' fetched within the last ${options.daysThreshold} day(s); skipping`);
     }
     else {
-      promises.push(processRepo(r, repoState, i, repos.filter(r => !r.deleted).length));
+      promises.push(processRepo(r, repoState, i, activeRepos.length));
     }
   }
 

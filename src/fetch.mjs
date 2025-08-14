@@ -146,9 +146,11 @@ async function fetchRepos() {
 
   await Promise.all(promises);
 
-  // check for deleted repos
-  const existingRepos = (await db.find('repo')).payload.records;
-  const deletedRepos = existingRepos.filter(r => !r.deleted && !activeRepoNames.has(r.name));
+  const deletedRepos =
+    (await db.find('repo'))
+      .payload
+      .records
+      .filter(r => !r.deleted && !activeRepoNames.has(r.name));
 
   if (deletedRepos.length > 0) {
     debug(`found ${deletedRepos.length} deleted repos: ${deletedRepos.map(r => r.name).join(', ')}`);
