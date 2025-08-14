@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/ctcpip/best-github-backup",
   "devDependencies": {
-    "eslint": "^9.2.0",
-    "eslint-config-ultra-mega": "^1.0.0",
-    "madge": "^7.0.0"
+    "eslint": "^9.33.0",
+    "eslint-config-ultra-mega": "^2.1.0",
+    "madge": "^8.0.0"
   },
   "dependencies": {
     "colorette": "^2.0.20",
     "fortune": "^5.5.19",
     "fortune-fs": "^1.2.1",
-    "octokit": "^4.0.2"
+    "octokit": "^5.0.3"
   },
   "files": [
     "src"
